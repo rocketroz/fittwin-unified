@@ -1,0 +1,39 @@
+{
+  "name": "fittwin-platform",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "backend",
+    "backend/queue-workers/avatar-processor",
+    "backend/queue-workers/tryon-renderer",
+    "frontend/apps/shopper",
+    "frontend/apps/brand-portal",
+    "frontend/packages/ui",
+    "frontend/packages/api-client",
+    "frontend/packages/analytics"
+  ],
+  "scripts": {
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "build": "turbo run build",
+    "prepare": "husky install",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "dev:stack": "node scripts/dev-stack.mjs",
+    "test:e2e": "playwright test frontend/apps/shopper/tests/e2e frontend/apps/brand-portal/tests/e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.8",
+    "prettier": "^3.3.3",
+    "turbo": "^2.0.6"
+  },
+  "dependencies": {
+    "shell": "^0.12.0"
+  }
+}
