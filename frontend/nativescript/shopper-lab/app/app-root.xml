@@ -1,0 +1,2 @@
+<!-- Optional app root for NativeScript navigation -->
+<Frame defaultPage="main-page" />

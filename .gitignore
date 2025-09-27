@@ -5,3 +5,5 @@ dist/
 .DS_Store
 coverage/
 .tmp/
+.env.local
+.env.*.local

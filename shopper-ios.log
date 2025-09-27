@@ -1,0 +1,261 @@
+Running: ns run ios --no-hmr --env.skipInstall in frontend/nativescript/shopper-lab
+Searching for devices...
+Copying template files...
+Platform ios successfully added. v8.9.4
+Preparing project...
+webpack is watching the files...
+asset [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32m[emitted][39m[22m (name: vendor) (id hint: defaultVendor)
+asset [1m[32mbundle.js[39m[22m 22.5 KiB [1m[32m[emitted][39m[22m (name: bundle)
+asset [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32m[emitted][39m[22m (name: runtime)
+asset [1m[32mtns_modules/inspector_modules.js[39m[22m 4.92 KiB [1m[32m[emitted][39m[22m (name: tns_modules/inspector_modules)
+Entrypoint [1mbundle[39m[22m 7.03 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mbundle.js[39m[22m 22.5 KiB
+Entrypoint [1mtns_modules/inspector_modules[39m[22m 7.01 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mtns_modules/inspector_modules.js[39m[22m 4.92 KiB
+orphan modules 11.4 KiB [1m[33m[orphan][39m[22m 7 modules
+runtime modules 2.54 KiB 7 modules
+modules by path [1m./node_modules/@nativescript/[39m[22m 1.69 MiB 197 modules
+modules by path [1m./node_modules/css-tree/[39m[22m 317 KiB 113 modules
+modules by path [1m./node_modules/source-map/lib/*.js[39m[22m 34.1 KiB 7 modules
+modules by path [1m./app/[39m[22m 4.31 KiB 6 modules
+modules by path [1m./node_modules/reduce-css-calc/dist/[39m[22m 131 KiB 5 modules
+modules by path [1m./node_modules/postcss-value-parser/lib/*.js[39m[22m 12.5 KiB
+  [1m./node_modules/postcss-value-parser/lib/index.js[39m[22m 607 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  + 4 modules
+modules by path [1m./node_modules/mdn-data/css/*.json[39m[22m 242 KiB
+  [1m./node_modules/mdn-data/css/at-rules.json[39m[22m 11.6 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  + 2 modules
++ 6 modules
+webpack 5.101.3 compiled [1m[32msuccessfully[39m[22m in 1251 ms
+Webpack compilation complete. Watching for file changes.
+No errors found.
+File change detected. Starting incremental webpack compilation...
+assets by status 7.03 MiB [1m[32m[cached][39m[22m 4 assets
+Entrypoint [1mbundle[39m[22m 7.03 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mbundle.js[39m[22m 22.5 KiB
+Entrypoint [1mtns_modules/inspector_modules[39m[22m 7.01 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mtns_modules/inspector_modules.js[39m[22m 4.92 KiB
+cached modules 2.68 MiB (javascript) 2.54 KiB (runtime) [1m[32m[cached][39m[22m 355 modules
+[1m./app/ sync \.(xml%7Cjs%7C(?<%21\.d\.)ts%7Cs?css)$[39m[22m 245 bytes [1m[33m[built][39m[22m
+webpack 5.101.3 compiled [1m[32msuccessfully[39m[22m in 98 ms
+Webpack compilation complete. Watching for file changes.
+No errors found.
+Updating runtime package.json with configuration values...
+Project successfully prepared (ios)
+Building project...
+Xcode build...
+/* com.apple.actool.document.warnings */
+/Users/kroma/FitTwin/frontend/nativescript/shopper-lab/platforms/ios/shopperlab/Resources/Assets.xcassets:./AppIcon.appiconset/(null)[2d][icon.png]: warning: The app icon set "AppIcon" has an unassigned child.
+/* com.apple.actool.compilation-results */
+/Users/kroma/Library/Developer/Xcode/DerivedData/shopperlab-eiurpolqxsmzrectwmzjacftpfix/Build/Intermediates.noindex/shopperlab.build/Debug-iphonesimulator/shopperlab.build/assetcatalog_generated_info.plist
+
+/* com.apple.actool.document.warnings */
+/Users/kroma/FitTwin/frontend/nativescript/shopper-lab/platforms/ios/shopperlab/Resources/Assets.xcassets:./AppIcon.appiconset/(null)[2d][icon.png]: warning: The app icon set "AppIcon" has an unassigned child.
+/* com.apple.actool.compilation-results */
+/Users/kroma/Library/Developer/Xcode/DerivedData/shopperlab-eiurpolqxsmzrectwmzjacftpfix/Build/Intermediates.noindex/shopperlab.build/Debug-iphonesimulator/shopperlab.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/kroma/Library/Developer/Xcode/DerivedData/shopperlab-eiurpolqxsmzrectwmzjacftpfix/Build/Intermediates.noindex/shopperlab.build/Debug-iphonesimulator/shopperlab.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/kroma/Library/Developer/Xcode/DerivedData/shopperlab-eiurpolqxsmzrectwmzjacftpfix/Build/Intermediates.noindex/shopperlab.build/Debug-iphonesimulator/shopperlab.build/DerivedSources/GeneratedAssetSymbols.swift
+
+note: Using codesigning identity override: 
+note: Run script build phase 'NativeScript PreLink' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'shopperlab' from project 'shopperlab')
+note: Run script build phase 'NativeScript PostBuild' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'shopperlab' from project 'shopperlab')
+note: Run script build phase 'NativeScript PreBuild' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'shopperlab' from project 'shopperlab')
+[WARNING]: The CFBundleIdentifier key inside the 'Info.plist' will be overriden by the 'id' set inside the "nativescript.config.(js|ts)".
+Project successfully built.
+Build time: 10.501 s.
+The build result is located at: /Users/kroma/FitTwin/frontend/nativescript/shopper-lab/platforms/ios/build/Debug-iphonesimulator/shopperlab.app
+Installing on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7...
+Successfully installed on device with identifier '2F5AB10B-6FE0-447A-BCD0-035261C273B7'.
+Successfully transferred bundle.js on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Successfully transferred package.json on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Successfully transferred runtime.js on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Successfully transferred tns_modules on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Successfully transferred inspector_modules.js on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Successfully transferred vendor.js on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Restarting application on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7...
+Successfully synced application com.fittwin.shopper.lab on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Chokidar raised event change for /Users/kroma/FitTwin/frontend/nativescript/shopper-lab/app/App_Resources/iOS/Info.plist.
+Updating runtime package.json with configuration values...
+Building project...
+Xcode build...
+/* com.apple.actool.document.warnings */
+/Users/kroma/FitTwin/frontend/nativescript/shopper-lab/platforms/ios/shopperlab/Resources/Assets.xcassets:./AppIcon.appiconset/(null)[2d][icon.png]: warning: The app icon set "AppIcon" has an unassigned child.
+/* com.apple.actool.compilation-results */
+/Users/kroma/Library/Developer/Xcode/DerivedData/shopperlab-eiurpolqxsmzrectwmzjacftpfix/Build/Intermediates.noindex/shopperlab.build/Debug-iphonesimulator/shopperlab.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/kroma/Library/Developer/Xcode/DerivedData/shopperlab-eiurpolqxsmzrectwmzjacftpfix/Build/Intermediates.noindex/shopperlab.build/Debug-iphonesimulator/shopperlab.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/kroma/Library/Developer/Xcode/DerivedData/shopperlab-eiurpolqxsmzrectwmzjacftpfix/Build/Intermediates.noindex/shopperlab.build/Debug-iphonesimulator/shopperlab.build/DerivedSources/GeneratedAssetSymbols.swift
+
+/* com.apple.actool.document.warnings */
+/Users/kroma/FitTwin/frontend/nativescript/shopper-lab/platforms/ios/shopperlab/Resources/Assets.xcassets:./AppIcon.appiconset/(null)[2d][icon.png]: warning: The app icon set "AppIcon" has an unassigned child.
+/* com.apple.actool.compilation-results */
+/Users/kroma/Library/Developer/Xcode/DerivedData/shopperlab-eiurpolqxsmzrectwmzjacftpfix/Build/Intermediates.noindex/shopperlab.build/Debug-iphonesimulator/shopperlab.build/assetcatalog_generated_info.plist
+
+note: Using codesigning identity override: 
+note: Run script build phase 'NativeScript PreBuild' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'shopperlab' from project 'shopperlab')
+note: Run script build phase 'NativeScript PreLink' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'shopperlab' from project 'shopperlab')
+note: Run script build phase 'NativeScript PostBuild' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'shopperlab' from project 'shopperlab')
+[WARNING]: The CFBundleIdentifier key inside the 'Info.plist' will be overriden by the 'id' set inside the "nativescript.config.(js|ts)".
+Project successfully built.
+Build time: 5.618 s.
+The build result is located at: /Users/kroma/FitTwin/frontend/nativescript/shopper-lab/platforms/ios/build/Debug-iphonesimulator/shopperlab.app
+Installing on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7...
+Successfully installed on device with identifier '2F5AB10B-6FE0-447A-BCD0-035261C273B7'.
+Restarting application on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7...
+Successfully synced application com.fittwin.shopper.lab on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+File change detected. Starting incremental webpack compilation...
+assets by status 7.01 MiB [1m[32m[cached][39m[22m 3 assets
+asset [1m[32mbundle.js[39m[22m 27.8 KiB [1m[32m[emitted][39m[22m (name: bundle)
+Entrypoint [1mbundle[39m[22m 7.03 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mbundle.js[39m[22m 27.8 KiB
+Entrypoint [1mtns_modules/inspector_modules[39m[22m 7.01 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mtns_modules/inspector_modules.js[39m[22m 4.92 KiB
+cached modules 2.68 MiB (javascript) 2.54 KiB (runtime) [1m[32m[cached][39m[22m 354 modules
+javascript modules 2.79 KiB
+  [1m./app/ sync \.(xml%7Cjs%7C(?<%21\.d\.)ts%7Cs?css)$[39m[22m 245 bytes [1m[33m[built][39m[22m
+  [1m./app/main-page.ts[39m[22m 2.55 KiB [1m[33m[optional][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+webpack 5.101.3 compiled [1m[32msuccessfully[39m[22m in 80 ms
+Webpack compilation complete. Watching for file changes.
+ERROR in ./app/main-page.ts:61:11
+TS2769: No overload matches this call.
+  Overload 1 of 3, '(event: "loadFinished", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadFinished"'.
+  Overload 2 of 3, '(event: "loadStarted", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadStarted"'.
+  Overload 3 of 3, '(eventNames: string, callback: (data: EventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type '(event: LoadEventData) => void' is not assignable to parameter of type '(data: EventData) => void'.
+      Types of parameters 'event' and 'data' are incompatible.
+        Type 'EventData' is missing the following properties from type 'LoadEventData': url, navigationType, error
+    59 |   (webView as any).__fittwinBound = true;
+    60 |
+  > 61 |   webView.on(WebView.loadStartedEvent, (event: LoadEventData) => {
+       |           ^^
+    62 |     const model = page.bindingContext as MainViewModel;
+    63 |     model?.setStatus(`Loading ${formatUrl(event.url)}…`);
+    64 |     console.log(`[Lab WebView] Loading ${event.url}`);
+
+ERROR in ./app/main-page.ts:67:11
+TS2769: No overload matches this call.
+  Overload 1 of 3, '(event: "loadFinished", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadFinished"'.
+  Overload 2 of 3, '(event: "loadStarted", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadStarted"'.
+  Overload 3 of 3, '(eventNames: string, callback: (data: EventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type '(event: LoadEventData) => void' is not assignable to parameter of type '(data: EventData) => void'.
+      Types of parameters 'event' and 'data' are incompatible.
+        Type 'EventData' is not assignable to type 'LoadEventData'.
+    65 |   });
+    66 |
+  > 67 |   webView.on(WebView.loadFinishedEvent, (event: LoadEventData) => {
+       |           ^^
+    68 |     const model = page.bindingContext as MainViewModel;
+    69 |     if (event.error) {
+    70 |       model?.setStatus(`Failed to load: ${event.error}`);
+
+Found 2 errors in 104 ms.
+Successfully transferred bundle.js on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Restarting application on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7...
+Successfully synced application com.fittwin.shopper.lab on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+  [Lab WebView] Loading http://localhost:3001/ar-lab
+  [Lab WebView] Failed loading http://localhost:3001/ar-lab: Could not connect to the server.
+File change detected. Starting incremental webpack compilation...
+assets by status 7.01 MiB [1m[32m[cached][39m[22m 3 assets
+asset [1m[32mbundle.js[39m[22m 28.2 KiB [1m[32m[emitted][39m[22m (name: bundle)
+Entrypoint [1mbundle[39m[22m 7.03 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mbundle.js[39m[22m 28.2 KiB
+Entrypoint [1mtns_modules/inspector_modules[39m[22m 7.01 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mtns_modules/inspector_modules.js[39m[22m 4.92 KiB
+cached modules 2.68 MiB (javascript) 2.54 KiB (runtime) [1m[32m[cached][39m[22m 354 modules
+javascript modules 1.08 KiB
+  [1m./app/ sync \.(xml%7Cjs%7C(?<%21\.d\.)ts%7Cs?css)$[39m[22m 245 bytes [1m[33m[built][39m[22m
+  [1m./app/main-page.xml[39m[22m 865 bytes [1m[33m[optional][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+webpack 5.101.3 compiled [1m[32msuccessfully[39m[22m in 39 ms
+Webpack compilation complete. Watching for file changes.
+ERROR in ./app/main-page.ts:61:11
+TS2769: No overload matches this call.
+  Overload 1 of 3, '(event: "loadFinished", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadFinished"'.
+  Overload 2 of 3, '(event: "loadStarted", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadStarted"'.
+  Overload 3 of 3, '(eventNames: string, callback: (data: EventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type '(event: LoadEventData) => void' is not assignable to parameter of type '(data: EventData) => void'.
+      Types of parameters 'event' and 'data' are incompatible.
+        Type 'EventData' is missing the following properties from type 'LoadEventData': url, navigationType, error
+    59 |   (webView as any).__fittwinBound = true;
+    60 |
+  > 61 |   webView.on(WebView.loadStartedEvent, (event: LoadEventData) => {
+       |           ^^
+    62 |     const model = page.bindingContext as MainViewModel;
+    63 |     model?.setStatus(`Loading ${formatUrl(event.url)}…`);
+    64 |     console.log(`[Lab WebView] Loading ${event.url}`);
+
+ERROR in ./app/main-page.ts:67:11
+TS2769: No overload matches this call.
+  Overload 1 of 3, '(event: "loadFinished", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadFinished"'.
+  Overload 2 of 3, '(event: "loadStarted", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadStarted"'.
+  Overload 3 of 3, '(eventNames: string, callback: (data: EventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type '(event: LoadEventData) => void' is not assignable to parameter of type '(data: EventData) => void'.
+      Types of parameters 'event' and 'data' are incompatible.
+        Type 'EventData' is not assignable to type 'LoadEventData'.
+    65 |   });
+    66 |
+  > 67 |   webView.on(WebView.loadFinishedEvent, (event: LoadEventData) => {
+       |           ^^
+    68 |     const model = page.bindingContext as MainViewModel;
+    69 |     if (event.error) {
+    70 |       model?.setStatus(`Failed to load: ${event.error}`);
+
+Found 2 errors in 60 ms.
+Successfully transferred bundle.js on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Restarting application on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7...
+Successfully synced application com.fittwin.shopper.lab on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+  [Lab WebView] Loading http://localhost:3001/ar-lab
+  [Lab WebView] Failed loading http://localhost:3001/ar-lab: Could not connect to the server.
+File change detected. Starting incremental webpack compilation...
+assets by status 7.01 MiB [1m[32m[cached][39m[22m 3 assets
+asset [1m[32mbundle.js[39m[22m 28.9 KiB [1m[32m[emitted][39m[22m (name: bundle)
+Entrypoint [1mbundle[39m[22m 7.03 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mbundle.js[39m[22m 28.9 KiB
+Entrypoint [1mtns_modules/inspector_modules[39m[22m 7.01 MiB = [1m[32mruntime.js[39m[22m 12.1 KiB [1m[32mvendor.js[39m[22m 6.99 MiB [1m[32mtns_modules/inspector_modules.js[39m[22m 4.92 KiB
+cached modules 2.68 MiB (javascript) 2.54 KiB (runtime) [1m[32m[cached][39m[22m 352 modules
+javascript modules 2.7 KiB
+  [1m./app/app.ts[39m[22m 406 bytes [1m[33m[built][39m[22m
+  [1m./app/ sync \.(xml%7Cjs%7C(?<%21\.d\.)ts%7Cs?css)$[39m[22m 245 bytes [1m[33m[built][39m[22m
+  [1m./app/app.css[39m[22m 1.81 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  [1m./app/app-root.xml[39m[22m 262 bytes [1m[33m[optional][39m[22m [1m[33m[built][39m[22m
+webpack 5.101.3 compiled [1m[32msuccessfully[39m[22m in 46 ms
+Webpack compilation complete. Watching for file changes.
+ERROR in ./app/main-page.ts:61:11
+TS2769: No overload matches this call.
+  Overload 1 of 3, '(event: "loadFinished", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadFinished"'.
+  Overload 2 of 3, '(event: "loadStarted", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadStarted"'.
+  Overload 3 of 3, '(eventNames: string, callback: (data: EventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type '(event: LoadEventData) => void' is not assignable to parameter of type '(data: EventData) => void'.
+      Types of parameters 'event' and 'data' are incompatible.
+        Type 'EventData' is missing the following properties from type 'LoadEventData': url, navigationType, error
+    59 |   (webView as any).__fittwinBound = true;
+    60 |
+  > 61 |   webView.on(WebView.loadStartedEvent, (event: LoadEventData) => {
+       |           ^^
+    62 |     const model = page.bindingContext as MainViewModel;
+    63 |     model?.setStatus(`Loading ${formatUrl(event.url)}…`);
+    64 |     console.log(`[Lab WebView] Loading ${event.url}`);
+
+ERROR in ./app/main-page.ts:67:11
+TS2769: No overload matches this call.
+  Overload 1 of 3, '(event: "loadFinished", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadFinished"'.
+  Overload 2 of 3, '(event: "loadStarted", callback: (args: LoadEventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"loadStarted"'.
+  Overload 3 of 3, '(eventNames: string, callback: (data: EventData) => void, thisArg?: any): void', gave the following error.
+    Argument of type '(event: LoadEventData) => void' is not assignable to parameter of type '(data: EventData) => void'.
+      Types of parameters 'event' and 'data' are incompatible.
+        Type 'EventData' is not assignable to type 'LoadEventData'.
+    65 |   });
+    66 |
+  > 67 |   webView.on(WebView.loadFinishedEvent, (event: LoadEventData) => {
+       |           ^^
+    68 |     const model = page.bindingContext as MainViewModel;
+    69 |     if (event.error) {
+    70 |       model?.setStatus(`Failed to load: ${event.error}`);
+
+Found 2 errors in 61 ms.
+Successfully transferred bundle.js on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+Restarting application on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7...
+Successfully synced application com.fittwin.shopper.lab on device 2F5AB10B-6FE0-447A-BCD0-035261C273B7.
+  [Lab WebView] Loading http://localhost:3001/ar-lab
+  [Lab WebView] Failed loading http://localhost:3001/ar-lab: Could not connect to the server.

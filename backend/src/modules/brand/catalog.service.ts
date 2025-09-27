@@ -8,8 +8,10 @@ import {
   ProductRecord,
   ProductVariantRecord,
   SizeChartRecord,
-  FitMapRecord
+  FitMapRecord,
 } from '../../lib/persistence/in-memory-store';
+
+const HTTP_STATUS_MULTI_STATUS = 207 as HttpStatus;
 
 interface CatalogUploadPayload {
   brandId?: string;
@@ -37,6 +39,9 @@ interface UpsertProductPayload {
   }>;
 }
 
+type ProductInput = NonNullable<UpsertProductPayload['products']>[number];
+type VariantInput = NonNullable<ProductInput['variants']>[number];
+
 interface SizeChartPayload {
   brandId?: string;
   garmentType?: string;
@@ -60,26 +65,28 @@ export class CatalogService {
     const payload = rawPayload as CatalogUploadPayload;
     if (!payload.brandId || !payload.fileUrl) {
       throw new HttpException(
-        { error: { code: 'CATALOG_INVALID_PAYLOAD', message: 'brandId and fileUrl are required.' } },
-        HttpStatus.BAD_REQUEST
+        {
+          error: { code: 'CATALOG_INVALID_PAYLOAD', message: 'brandId and fileUrl are required.' },
+        },
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     if (payload.schemaVersion && payload.schemaVersion !== '1.0') {
       throw new HttpException(
         { error: { code: 'CATALOG_SCHEMA_INVALID', message: 'Unsupported schema version.' } },
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     const brand = this.ensureBrand(payload.brandId);
     const activeJob = Array.from(this.store.catalogIngestJobs.values()).find(
-      (job) => job.brandId === brand.id && job.status === 'processing'
+      (job) => job.brandId === brand.id && job.status === 'processing',
     );
     if (activeJob) {
       throw new HttpException(
         { error: { code: 'CATALOG_JOB_EXISTS', message: 'Catalog ingest already in progress.' } },
-        HttpStatus.CONFLICT
+        HttpStatus.CONFLICT,
       );
     }
 
@@ -89,7 +96,7 @@ export class CatalogService {
       fileUrl: payload.fileUrl,
       status: 'processing',
       schemaVersion: payload.schemaVersion ?? '1.0',
-      createdAt: timestamp()
+      createdAt: timestamp(),
     };
     this.store.catalogIngestJobs.set(job.id, job);
 
@@ -101,7 +108,7 @@ export class CatalogService {
     if (!job) {
       throw new HttpException(
         { error: { code: 'CATALOG_INGEST_NOT_FOUND', message: 'Catalog ingest not found.' } },
-        HttpStatus.NOT_FOUND
+        HttpStatus.NOT_FOUND,
       );
     }
     return job;
@@ -111,8 +118,13 @@ export class CatalogService {
     const payload = rawPayload as UpsertProductPayload;
     if (!payload.brandId || !payload.products?.length) {
       throw new HttpException(
-        { error: { code: 'CATALOG_INVALID_PAYLOAD', message: 'brandId and products array are required.' } },
-        HttpStatus.BAD_REQUEST
+        {
+          error: {
+            code: 'CATALOG_INVALID_PAYLOAD',
+            message: 'brandId and products array are required.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -120,15 +132,18 @@ export class CatalogService {
     const results = payload.products.map((product) => this.persistProduct(brand, product));
 
     const errors = results.filter((result) => !result.success);
-    const status = errors.length && errors.length !== results.length ? HttpStatus.MULTI_STATUS : HttpStatus.CREATED;
+    const status =
+      errors.length && errors.length !== results.length
+        ? HTTP_STATUS_MULTI_STATUS
+        : HttpStatus.CREATED;
 
     return {
       status,
       summary: {
         successCount: results.filter((result) => result.success).length,
-        errorCount: errors.length
+        errorCount: errors.length,
       },
-      results
+      results,
     };
   }
 
@@ -137,7 +152,7 @@ export class CatalogService {
     if (!payload.brandId || !payload.garmentType) {
       throw new HttpException(
         { error: { code: 'SIZECHART_INVALID', message: 'brandId and garmentType are required.' } },
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -149,9 +164,9 @@ export class CatalogService {
       name: payload.garmentType,
       rows: Object.entries(payload.measurementRules ?? {}).map(([key, rules]) => ({
         measurement: key,
-        ...rules
+        ...rules,
       })),
-      createdAt: timestamp()
+      createdAt: timestamp(),
     };
     this.store.sizeCharts.set(chartId, record);
     return record;
@@ -162,7 +177,7 @@ export class CatalogService {
     if (!payload.brandId || !payload.garmentType) {
       throw new HttpException(
         { error: { code: 'FITMAP_INVALID', message: 'brandId and garmentType are required.' } },
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -173,7 +188,7 @@ export class CatalogService {
       productId: mapId,
       avatarMetrics: { baseline: 0 },
       fitNotes: { garmentType: payload.garmentType },
-      createdAt: timestamp()
+      createdAt: timestamp(),
     };
     this.store.fitMaps.set(mapId, record);
 
@@ -182,7 +197,7 @@ export class CatalogService {
       id: eventId,
       type: 'brand.fitmap.created',
       createdAt: timestamp(),
-      attributes: { brandId: brand.id, garmentType: payload.garmentType }
+      attributes: { brandId: brand.id, garmentType: payload.garmentType },
     });
 
     return record;
@@ -200,37 +215,46 @@ export class CatalogService {
       slug: `brand-${brandId.slice(0, 6)}`,
       onboarded: true,
       createdAt: timestamp(),
-      updatedAt: timestamp()
+      updatedAt: timestamp(),
     };
     this.store.brands.set(brandId, record);
     return record;
   }
 
-  private persistProduct(brand: BrandRecord, product: UpsertProductPayload['products'][number]) {
-    if (!product?.variants?.length) {
+  private persistProduct(brand: BrandRecord, productInput: ProductInput | undefined) {
+    if (!productInput) {
       return {
         success: false,
-        externalId: product?.externalId,
-        errors: ['At least one variant is required.']
+        errors: ['Product payload missing.'],
       };
     }
 
-    const productId = product.externalId ? `product-${product.externalId}` : generateId();
+    if (!productInput.variants?.length) {
+      return {
+        success: false,
+        externalId: productInput.externalId,
+        errors: ['At least one variant is required.'],
+      };
+    }
+
+    const productId = productInput.externalId ? `product-${productInput.externalId}` : generateId();
     const record: ProductRecord = {
       id: productId,
       brandId: brand.id,
-      name: product.title ?? 'Untitled Product',
-      description: product.description ?? '',
-      heroImageUrl: String(product.assets?.['hero'] ?? 'https://cdn.fittwin.local/placeholder.png'),
-      sizeChartId: product.sizeChartId,
-      fitMapId: product.fitMapId,
+      name: productInput.title ?? 'Untitled Product',
+      description: productInput.description ?? '',
+      heroImageUrl: String(
+        productInput.assets?.['hero'] ?? 'https://cdn.fittwin.local/placeholder.png',
+      ),
+      sizeChartId: productInput.sizeChartId,
+      fitMapId: productInput.fitMapId,
       active: true,
       createdAt: timestamp(),
-      updatedAt: timestamp()
+      updatedAt: timestamp(),
     };
     this.store.products.set(productId, record);
 
-    product.variants?.forEach((variant) => {
+    productInput.variants?.forEach((variant: VariantInput | undefined) => {
       if (!variant?.sku) {
         return;
       }
@@ -245,15 +269,15 @@ export class CatalogService {
         priceCents: variant.price?.amount ?? 0,
         currency: variant.price?.currency ?? 'USD',
         createdAt: timestamp(),
-        updatedAt: timestamp()
+        updatedAt: timestamp(),
       };
       this.store.variants.set(variantId, variantRecord);
     });
 
     return {
       success: true,
-      externalId: product.externalId,
-      productId
+      externalId: productInput.externalId,
+      productId,
     };
   }
 }

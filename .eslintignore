@@ -2,3 +2,16 @@ node_modules/
 dist/
 .next/
 coverage/
+**/jest.config.ts
+**/*.config.ts
+**/*.config.js
+**/*.config.cjs
+**/*.config.mjs
+dist/**
+build/**
+coverage/**
+node_modules/**
+dist/**
+build/**
+coverage/**
+node_modules/**

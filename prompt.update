@@ -1,0 +1,334 @@
+# Integration plan (answer first)
+
+Yes—add a **consumer AR Measurement Lab** view to your shopper app, wrap capture behind an **adapter interface** (native ARKit/ARCore when available; browser fallback now), stream **calibrated metrics** to a new **/measure** service, and feed those into a **Virtual Tailor** pipeline (landmarks → 3D lift → size/fit → style/SKU verification → inpaint/i2i checks). Zero disruption: all new work is additive (new modules, workers, routes, feature flags), no existing flows are broken.
+
+---
+
+## Plan → Verify → Reflect
+
+* **Plan:** Add `consumer-ar-lab` to shopper, `measure` + `tailor` modules to backend, `@fittwin/ar-client` shared adapter, and two workers (`measurement-worker`, `tailor-worker`). Use feature flag `FEATURE_AR_LAB=1`.
+* **Verify:** Bench with scale bar + ΔE card; enforce thresholds (shoe ±3 mm iOS, ±5 mm Android-ToF; laid-flat edges ±5 mm; ΔE≤2). Contract tests for new APIs + Playwright flow.
+* **Reflect:** Start with browser fallback (marker-based scale) to unblock UX/dev; drop in native ARKit/ARCore adapters later with no UI/API change.
+
+---
+
+## Repo changes (additive)
+
+```
+root/
+├─ backend/
+│  ├─ src/modules/measure/{controller,service,module}.ts
+│  ├─ src/modules/tailor/{controller,service,module}.ts
+│  ├─ src/lib/metrics/qa-thresholds.ts
+│  └─ src/lib/vision/{landmarks.ts, color.ts, lift3d.ts, sku-retrieval.ts}
+├─ backend/queue-workers/
+│  ├─ measurement-worker/src/index.ts
+│  └─ tailor-worker/src/index.ts
+├─ frontend/packages/
+│  ├─ ar-client/src/index.ts            # adapter interface + browser adapter
+│  └─ ar-schemas/src/index.ts           # zod/io-ts API types shared FE/BE
+├─ frontend/apps/shopper/
+│  └─ src/app/ar-lab/page.tsx           # consumer AR Measurement Lab view
+├─ specs/001-fittwin-v1-platform/
+│  ├─ spec-ar-lab.md
+│  └─ tasks-ar-lab.md
+├─ stack.env.example  (add FEATURE_AR_LAB=1)
+└─ scripts/dev-stack.mjs (wire workers + feature flag)
+```
+
+---
+
+## Shared adapter (pluggable AR capture)
+
+**`frontend/packages/ar-client/src/index.ts`**
+
+```ts
+export type CameraIntrinsics = { fx:number; fy:number; cx:number; cy:number; };
+export type DepthFrame = { width:number; height:number; data:Float32Array; confidence?:Float32Array };
+export type RgbFrame = { width:number; height:number; blob:Blob; };
+export type Calibration = { scaleBias:number; rmsMm:number; hasColorCard:boolean; whiteBalance:number; };
+
+export type Landmark2D = { name:string; x:number; y:number; score:number };
+export type CaptureSample = {
+  rgb: RgbFrame;
+  depth?: DepthFrame;            // native AR adapters fill this
+  intrinsics?: CameraIntrinsics;
+  pose?: number[];               // 4x4 row-major
+  landmarks2D?: Landmark2D[];    // MediaPipe or native body landmarks
+  meta: { distanceM?:number; orientation?:string; ts:number };
+};
+
+export interface ArAdapter {
+  startSession(): Promise<void>;
+  calibrate(): Promise<Calibration>;         // quick scale-bar + color card check
+  captureBurst(n:number, around:string): Promise<CaptureSample[]>; // "shoe","hem","torso"
+  stopSession(): Promise<void>;
+}
+
+export { createBrowserAdapter } from "./browser-adapter";  // getUserMedia + ArUco + MediaPipe
+// Later: createArkitAdapter(), createArcoreAdapter() – drop-in replacements.
+```
+
+> One-liner: **Adapter abstracts capture** so you can swap in native ARKit/ARCore later without touching UI/backend.
+
+---
+
+## Shopper view (undisruptive UI)
+
+**`frontend/apps/shopper/src/app/ar-lab/page.tsx`**
+
+```tsx
+"use client";
+import { useEffect, useState } from "react";
+import { createBrowserAdapter } from "@fittwin/ar-client";
+import { postMeasureBurst } from "@fittwin/api-client"; // new endpoint
+
+export default function ArLabPage(){
+  const [enabled,setEnabled]=useState(process.env.NEXT_PUBLIC_FEATURE_AR_LAB==="1");
+  const [log,setLog]=useState<string[]>([]);
+  useEffect(()=>{ if(!enabled) return; (async()=>{
+    const ar = await createBrowserAdapter();
+    await ar.startSession();
+    const calib = await ar.calibrate();
+    setLog(l=>[...l,`calibrated: rms=${calib.rmsMm}mm, Δscale=${(calib.scaleBias*100).toFixed(1)}%`]);
+  })(); },[enabled]);
+
+  async function measure(type:"shoe"|"hem"|"torso"){
+    const ar = await createBrowserAdapter();
+    const burst = await ar.captureBurst(6,type);
+    const res = await postMeasureBurst({ type, burst });  // uploads frames + meta
+    setLog(l=>[...l,`↳ ${type} metrics: ${JSON.stringify(res.metrics)} (qa:${res.qa.pass})`]);
+  }
+
+  if(!enabled) return <div>AR Lab disabled</div>;
+  return (
+    <main className="p-6 space-y-4">
+      <h1 className="text-xl font-semibold">Consumer AR Measurement Lab</h1>
+      <div className="flex gap-2">
+        <button onClick={()=>measure("shoe")} className="px-3 py-2 border rounded">Measure Shoe</button>
+        <button onClick={()=>measure("hem")}  className="px-3 py-2 border rounded">Measure Hem</button>
+        <button onClick={()=>measure("torso")} className="px-3 py-2 border rounded">Measure Torso</button>
+      </div>
+      <pre className="bg-black text-green-300 p-3 rounded h-64 overflow-auto">
+        {log.join("\n")}
+      </pre>
+    </main>
+  );
+}
+```
+
+> One-liner: **Adds a lab page** that captures bursts, calls backend, prints metrics + QA.
+
+---
+
+## Backend: **measure** module (compute inches/mm + QA)
+
+**`backend/src/modules/measure/measure.controller.ts`**
+
+```ts
+import { Controller, Post, Body } from "@nestjs/common";
+import { MeasureService } from "./measure.service";
+import { z } from "zod";
+const BurstSchema = z.object({
+  type: z.enum(["shoe","hem","torso"]),
+  burst: z.array(z.object({
+    rgb: z.object({ width:z.number(), height:z.number(), blobBase64:z.string() }),
+    depth: z.object({ width:z.number(), height:z.number(), dataBase64:z.string() }).optional(),
+    intrinsics: z.object({ fx:z.number(), fy:z.number(), cx:z.number(), cy:z.number() }).optional(),
+    pose: z.array(z.number()).length(16).optional(),
+    landmarks2D: z.array(z.object({ name:z.string(), x:z.number(), y:z.number(), score:z.number() })).optional(),
+    meta: z.object({ distanceM:z.number().optional(), orientation:z.string().optional(), ts:z.number() })
+  })).min(2)
+});
+
+@Controller("measure")
+export class MeasureController {
+  constructor(private svc: MeasureService) {}
+  @Post("burst")
+  async burst(@Body() payload:any){
+    const req = BurstSchema.parse(payload);
+    const out = await this.svc.processBurst(req);
+    return out; // { metrics:{...}, qa:{ pass:boolean, reasons:string[] } }
+  }
+}
+```
+
+**`backend/src/modules/measure/measure.service.ts`**
+
+```ts
+import { Injectable } from "@nestjs/common";
+import { computeLandmarks2D, liftTo3D, computeLinearMetrics, colorDeltaE } from "../../lib/vision";
+import { QA } from "../../lib/metrics/qa-thresholds";
+
+@Injectable()
+export class MeasureService {
+  async processBurst(req:{type:string, burst:any[]}){
+    // 1) pick best frames (sharpness, angle, confidence)
+    const frames = req.burst; // TODO: scoring
+    // 2) landmarks (if not provided by adapter)
+    const withLm = await computeLandmarks2D(frames, req.type);
+    // 3) 3D lift via depth/intrinsics/poses (fallback: scale-from-marker)
+    const cloud = await liftTo3D(withLm);
+    // 4) measurements (mm/inch) by type
+    const metrics = await computeLinearMetrics(cloud, req.type);
+    // 5) color QA (if color card present)
+    const deltaE = await colorDeltaE(frames);
+    // 6) QA thresholds
+    const qa = QA.evaluate({ type:req.type, metrics, deltaE, device:req["device"] });
+    return { metrics, qa, deltaE };
+  }
+}
+```
+
+**`backend/src/lib/metrics/qa-thresholds.ts`**
+
+```ts
+export const QA = {
+  limits:{
+    shoe:{ absMm:5, repeatMm:3, deltaE:2 },
+    hem:{ absMm:5, repeatMm:4, deltaE:2 },
+    torso:{ absMm:10, repeatMm:6, deltaE:3 }
+  },
+  evaluate({type,metrics,deltaE}:{type:string,metrics:any,deltaE?:number}){
+    const L = this.limits[type as keyof typeof this.limits];
+    const fails:string[]=[];
+    if(metrics.absErrorMm && metrics.absErrorMm > L.absMm) fails.push(`abs>${L.absMm}mm`);
+    if(metrics.repeatSdMm && metrics.repeatSdMm > L.repeatMm) fails.push(`repeat>${L.repeatMm}mm`);
+    if(deltaE!=null && deltaE > L.deltaE) fails.push(`ΔE>${L.deltaE}`);
+    return { pass:fails.length===0, reasons:fails };
+  }
+};
+```
+
+> One-liner: **MeasureService** converts burst → landmarks → 3D → mm/in + QA.
+
+---
+
+## Backend: **tailor** module (Virtual Tailor pipeline)
+
+**`backend/src/modules/tailor/tailor.controller.ts`**
+
+```ts
+import { Controller, Post, Body } from "@nestjs/common";
+import { TailorService } from "./tailor.service";
+@Controller("tailor")
+export class TailorController {
+  constructor(private svc: TailorService) {}
+  @Post("analyze-upload")
+  analyze(@Body() body:any){ return this.svc.analyzeUpload(body); } // {style, sku, size, fit, color}
+  @Post("project")
+  project(@Body() body:any){ return this.svc.project(body); } // i2i/inpaint with metric/ΔE guard
+}
+```
+
+**`backend/src/modules/tailor/tailor.service.ts`**
+
+```ts
+import { Injectable } from "@nestjs/common";
+import { detectClothing, retrieveSku, fitFromMetrics, enforceColor } from "../../lib/vision";
+import { QA } from "../../lib/metrics/qa-thresholds";
+
+@Injectable()
+export class TailorService {
+  async analyzeUpload({ images, arSessionId }){
+    // 1) run detectors/segmenters (SAM/cloth parsing)
+    const items = await detectClothing(images);
+    // 2) style→SKU retrieval over catalog embeddings
+    const sku = await retrieveSku(items);
+    // 3) pull last AR metrics by session; combine with on-image landmarks
+    const sizeFit = await fitFromMetrics(sku, arSessionId);
+    // 4) color alignment to brand palette
+    const color = await enforceColor(items);
+    return { items, sku, ...sizeFit, color };
+  }
+
+  async project({ baseImage, targetSku, edits }){
+    // Diffusion i2i/inpaint with ControlNet, then validate:
+    const result = await this.invokeRenderer({ baseImage, targetSku, edits });
+    const qa = QA.evaluate(await this.reMeasure(result)); // re-run measure on output
+    if(!qa.pass) return { rejected:true, qa };
+    return { image:result, qa };
+  }
+
+  private async invokeRenderer(p:any){ /* enqueue tryon-renderer */ return p; }
+  private async reMeasure(img:any){ /* call /measure/burst-lite */ return { absErrorMm:3, repeatSdMm:2, deltaE:1.5 }; }
+}
+```
+
+> One-liner: **Virtual Tailor** consumes AR metrics to interpret uploads and **rejects** generative outputs that drift beyond mm/ΔE gates.
+
+---
+
+## Workers (queue)
+
+* **measurement-worker**: burst scoring, depth fusion, 3D lifting, metric aggregation (median/repeatability), writes `metrics:{...}` to profile.
+* **tailor-worker**: runs detectors (segmenters/landmarks), catalog **SKU retrieval**, triggers try-on renderer, then **post-gen re-measure**.
+
+Both follow your existing `queue-workers/*/src/index.ts` logging pattern; wire `local-queue.ts`.
+
+---
+
+## API contracts (shared types)
+
+**`frontend/packages/ar-schemas/src/index.ts`**
+
+```ts
+export type MeasureBurstReq = {
+  type: "shoe"|"hem"|"torso";
+  burst: Array<{
+    rgb:{ width:number;height:number; blobBase64:string };
+    depth?:{ width:number;height:number; dataBase64:string; confidenceBase64?:string };
+    intrinsics?:{ fx:number;fy:number;cx:number;cy:number };
+    pose?: number[]; // 16
+    landmarks2D?: Array<{ name:string;x:number;y:number;score:number }>;
+    meta:{ distanceM?:number; orientation?:string; ts:number }
+  }>;
+};
+export type MeasureBurstRes = { metrics:any; qa:{pass:boolean; reasons:string[]}; deltaE?:number };
+```
+
+> One-liner: **Shared zod/types** keep FE/BE aligned; enables Playwright fixtures.
+
+---
+
+## Feature-flag + dev-stack
+
+* `FEATURE_AR_LAB=1` in `stack.env` → shopper shows `/ar-lab`.
+* `scripts/dev-stack.mjs`: spawn `measurement-worker` + `tailor-worker`.
+
+---
+
+## E2E (Playwright smoke)
+
+* `shopper-flow.spec.ts`: visit `/ar-lab`, run mocked adapter (inject fixture burst), assert `/measure/burst` → `qa.pass===true`, then `/tailor/analyze-upload` returns `{sku,size,fit}`.
+
+---
+
+## What runs now vs later
+
+* **Now (OSS fallback):** browser adapter uses `getUserMedia` + **ArUco** scale card + **MediaPipe** body/foot landmarks; depth optional (estimate from stereo motion); good enough to exercise the pipeline and QA gates.
+* **Later (drop-in):** add `createArkitAdapter()`/`createArcoreAdapter()`; the page and backend don’t change.
+
+---
+
+## QA thresholds (initial)
+
+* Shoes/small rigid: **±3 mm** (iOS), **±5 mm** (Android ToF), **±10 mm** (Android VIO-only).
+* Laid-flat hems: **±5 mm**.
+* On-body lengths: **±10 mm** + fit class (tight/regular/oversized).
+* Color: **ΔE ≤ 2** with card; **≤3** otherwise → warn.
+
+---
+
+## Why this is “undisruptive”
+
+* Adds a **new view + modules + workers**; **no changes** to existing Auth/TryOn/Commerce contracts.
+* All heavy work is behind **adapters and workers**; the shopper/brand portals only **opt in** via flag.
+* Lets you demo and measure **today** (browser fallback) and **upgrade** to native AR **tomorrow** sans refactor.
+
+---
+
+### Compressed keywords / chat title
+
+**Title:** FitTwin: AR Measurement Lab & Virtual Tailor (Adapter-first)
+**Keywords:** AR adapter, browser fallback, ARKit/ARCore plug-in, burst capture, scale calibration, landmarks→3D lift, measurement QA, ΔE color, SKU retrieval, i2i/inpaint validation, measurement-worker, tailor-worker, feature-flag.

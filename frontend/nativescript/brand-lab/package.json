@@ -1,0 +1,18 @@
+{
+  "name": "@fittwin/nativescript-brand-lab",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "android": "ns run android --no-hmr --env.skipInstall",
+    "ios": "ns run ios --no-hmr --env.skipInstall",
+    "clean": "ns clean"
+  },
+  "dependencies": {
+    "@nativescript/core": "~8.7.0"
+  },
+  "devDependencies": {
+    "@nativescript/android": "8.9.2",
+    "@nativescript/webpack": "~5.0.0",
+    "typescript": "~5.5.4"
+  }
+}

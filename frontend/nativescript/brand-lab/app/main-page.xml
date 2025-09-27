@@ -1,0 +1,11 @@
+<Page navigatingTo="navigatingTo" class="page">
+  <ActionBar title="FitTwin Brand Lab" class="action-bar" />
+  <GridLayout rows="auto,auto,*" padding="16" rowSpacing="12">
+    <StackLayout row="0" orientation="horizontal" verticalAlignment="middle" spacing="8">
+      <TextField id="labUrlEntry" text="{{ labUrl }}" hint="Brand Lab URL" width="70%" />
+      <Button text="Load" tap="onSubmitUrl" class="btn btn-primary" />
+    </StackLayout>
+    <Label row="1" text="{{ statusMessage }}" textWrap="true" class="status-label" visibility="{{ statusMessage ? 'visible' : 'collapse' }}" />
+    <WebView id="labWebView" row="2" src="{{ labUrl }}" />
+  </GridLayout>
+</Page>

@@ -1,0 +1,4 @@
+// General iOS build settings for NativeScript
+APP_DISPLAY_NAME = FitTwin Brand Lab;
+APP_IDENTIFIER_PREFIX = com.fittwin;
+APP_BUNDLE_IDENTIFIER = com.fittwin.brand.lab;

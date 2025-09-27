@@ -1,0 +1,3 @@
+Running: ns run android --no-hmr --env.skipInstall in frontend/nativescript/brand-lab
+EPERM: operation not permitted, open '/Users/kroma/.local/share/.nativescript-cli/cde38ba7feb7a6a8bafa5a32d38860a2'
+Error while reporting exception: Error: EPERM: operation not permitted, open '/Users/kroma/.local/share/.nativescript-cli/a05e966313d1a8e32b13c35910ae824e'

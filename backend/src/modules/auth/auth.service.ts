@@ -5,12 +5,12 @@ import {
   generateId,
   timestamp,
   RefreshTokenRecord,
-  VerificationTokenRecord
+  VerificationTokenRecord,
 } from '../../lib/persistence/in-memory-store';
 import {
   hashPassword,
   validatePasswordStrength,
-  verifyPassword
+  verifyPassword,
 } from '../../lib/security/password';
 import { isBreachedPassword } from '../../lib/security/breach-check';
 
@@ -46,6 +46,8 @@ interface LogoutPayload {
   refreshToken: string;
 }
 
+type UnknownRecord = Record<string, unknown>;
+
 const FAILED_ATTEMPT_LIMIT = 5;
 const REFRESH_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
 const VERIFICATION_TTL_MS = 1000 * 60 * 60 * 24; // 24 hours
@@ -54,7 +56,7 @@ function ensureEmail(value: unknown): asserts value is string {
   if (typeof value !== 'string' || !value.includes('@')) {
     throw new HttpException(
       { error: { code: 'AUTH_INVALID_EMAIL', message: 'Valid email is required.' } },
-      HttpStatus.BAD_REQUEST
+      HttpStatus.BAD_REQUEST,
     );
   }
 }
@@ -63,7 +65,7 @@ function ensurePassword(value: unknown): asserts value is string {
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new HttpException(
       { error: { code: 'AUTH_INVALID_PASSWORD', message: 'Password is required.' } },
-      HttpStatus.BAD_REQUEST
+      HttpStatus.BAD_REQUEST,
     );
   }
 }
@@ -72,7 +74,7 @@ function ensurePassword(value: unknown): asserts value is string {
 export class AuthService {
   private readonly store = inMemoryStore;
 
-  async signup(rawPayload: Record<string, unknown>) {
+  async signup(rawPayload: UnknownRecord) {
     const payload = rawPayload as Partial<SignupPayload>;
     ensureEmail(payload.email);
     ensurePassword(payload.password);
@@ -81,22 +83,29 @@ export class AuthService {
     if (!valid) {
       throw new HttpException(
         { error: { code: 'AUTH_WEAK_PASSWORD', message: errors.join(' ') } },
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     if (isBreachedPassword(payload.password)) {
       throw new HttpException(
-        { error: { code: 'AUTH_BREACHED_PASSWORD', message: 'Password appears in breach corpus.' } },
-        HttpStatus.UNAUTHORIZED
+        {
+          error: { code: 'AUTH_BREACHED_PASSWORD', message: 'Password appears in breach corpus.' },
+        },
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
     const consent = payload.consent ?? {};
     if (!consent.terms || !consent.privacy) {
       throw new HttpException(
-        { error: { code: 'AUTH_CONSENT_REQUIRED', message: 'Terms and privacy consent must be granted.' } },
-        HttpStatus.BAD_REQUEST
+        {
+          error: {
+            code: 'AUTH_CONSENT_REQUIRED',
+            message: 'Terms and privacy consent must be granted.',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -104,7 +113,7 @@ export class AuthService {
     if (existingUser) {
       throw new HttpException(
         { error: { code: 'AUTH_EMAIL_EXISTS', message: 'Email already registered.' } },
-        HttpStatus.CONFLICT
+        HttpStatus.CONFLICT,
       );
     }
 
@@ -121,11 +130,11 @@ export class AuthService {
       consent: {
         terms: Boolean(consent.terms),
         marketing: Boolean(consent.marketing),
-        privacy: Boolean(consent.privacy)
+        privacy: Boolean(consent.privacy),
       },
       createdAt: now,
       updatedAt: now,
-      failedAttempts: 0
+      failedAttempts: 0,
     });
 
     this.store.profiles.set(userId, {
@@ -137,40 +146,34 @@ export class AuthService {
       bodyMetrics: {},
       consents: {
         marketing: Boolean(consent.marketing),
-        dataExportAvailable: false
+        dataExportAvailable: false,
       },
       avatars: [],
-      updatedAt: now
+      updatedAt: now,
     });
 
     const verificationToken: VerificationTokenRecord = {
       token: randomUUID(),
       userId,
-      expiresAt: new Date(Date.now() + VERIFICATION_TTL_MS).toISOString()
+      expiresAt: new Date(Date.now() + VERIFICATION_TTL_MS).toISOString(),
     };
     this.store.verificationTokens.set(verificationToken.token, verificationToken);
 
     return {
       userId,
       status: 'verification_pending',
-      verificationToken: verificationToken.token
+      verificationToken: verificationToken.token,
     };
   }
 
-  async verify(rawPayload: Record<string, unknown>): Promise<void> {
-    const payload = rawPayload as VerifyPayload;
-    if (typeof payload.token !== 'string') {
-      throw new HttpException(
-        { error: { code: 'AUTH_TOKEN_REQUIRED', message: 'Verification token is required.' } },
-        HttpStatus.BAD_REQUEST
-      );
-    }
+  async verify(rawPayload: UnknownRecord): Promise<void> {
+    const payload = this.parseVerifyPayload(rawPayload);
 
     const record = this.store.verificationTokens.get(payload.token);
     if (!record) {
       throw new HttpException(
         { error: { code: 'AUTH_TOKEN_NOT_FOUND', message: 'Verification token not recognized.' } },
-        HttpStatus.NOT_FOUND
+        HttpStatus.NOT_FOUND,
       );
     }
 
@@ -178,7 +181,7 @@ export class AuthService {
       this.store.verificationTokens.delete(payload.token);
       throw new HttpException(
         { error: { code: 'AUTH_TOKEN_EXPIRED', message: 'Verification token expired.' } },
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -187,7 +190,7 @@ export class AuthService {
       this.store.verificationTokens.delete(payload.token);
       throw new HttpException(
         { error: { code: 'AUTH_USER_NOT_FOUND', message: 'User for token missing.' } },
-        HttpStatus.NOT_FOUND
+        HttpStatus.NOT_FOUND,
       );
     }
 
@@ -197,36 +200,34 @@ export class AuthService {
     this.store.verificationTokens.delete(payload.token);
   }
 
-  async login(rawPayload: Record<string, unknown>) {
-    const payload = rawPayload as LoginPayload;
-    ensureEmail(payload.email);
-    ensurePassword(payload.password);
+  async login(rawPayload: UnknownRecord) {
+    const payload = this.parseLoginPayload(rawPayload);
 
     const user = this.findUserByEmail(payload.email);
     if (!user) {
       throw new HttpException(
         { error: { code: 'AUTH_INVALID_CREDENTIALS', message: 'Invalid email or password.' } },
-        HttpStatus.UNAUTHORIZED
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
     if (user.status === 'verification_pending') {
       throw new HttpException(
         { error: { code: 'AUTH_VERIFICATION_REQUIRED', message: 'Email verification pending.' } },
-        HttpStatus.LOCKED
+        HttpStatus.FORBIDDEN,
       );
     }
 
     if (user.status === 'locked') {
       throw new HttpException(
         { error: { code: 'AUTH_ACCOUNT_LOCKED', message: 'Account temporarily locked.' } },
-        HttpStatus.LOCKED
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
     const passwordOk = verifyPassword(payload.password, {
       hash: user.passwordHash,
-      salt: user.passwordSalt
+      salt: user.passwordSalt,
     });
 
     if (!passwordOk) {
@@ -238,7 +239,7 @@ export class AuthService {
       this.store.users.set(user.id, user);
       throw new HttpException(
         { error: { code: 'AUTH_INVALID_CREDENTIALS', message: 'Invalid email or password.' } },
-        HttpStatus.UNAUTHORIZED
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
@@ -254,24 +255,18 @@ export class AuthService {
       accessToken: this.createAccessToken(user.id),
       refreshToken: refreshToken.token,
       expiresIn: 900,
-      mfaRequired: false
+      mfaRequired: false,
     };
   }
 
-  async refresh(rawPayload: Record<string, unknown>) {
-    const payload = rawPayload as RefreshPayload;
-    if (typeof payload.refreshToken !== 'string') {
-      throw new HttpException(
-        { error: { code: 'AUTH_REFRESH_REQUIRED', message: 'Refresh token is required.' } },
-        HttpStatus.BAD_REQUEST
-      );
-    }
+  async refresh(rawPayload: UnknownRecord) {
+    const payload = this.parseRefreshPayload(rawPayload);
 
     const record = this.store.refreshTokens.get(payload.refreshToken);
     if (!record || record.revoked) {
       throw new HttpException(
         { error: { code: 'AUTH_REFRESH_INVALID', message: 'Refresh token invalid.' } },
-        HttpStatus.UNAUTHORIZED
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
@@ -279,14 +274,18 @@ export class AuthService {
       this.store.refreshTokens.delete(payload.refreshToken);
       throw new HttpException(
         { error: { code: 'AUTH_REFRESH_EXPIRED', message: 'Refresh token expired.' } },
-        HttpStatus.UNAUTHORIZED
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
-    if (payload.deviceFingerprint && record.deviceFingerprint && payload.deviceFingerprint !== record.deviceFingerprint) {
+    if (
+      payload.deviceFingerprint &&
+      record.deviceFingerprint &&
+      payload.deviceFingerprint !== record.deviceFingerprint
+    ) {
       throw new HttpException(
         { error: { code: 'AUTH_FINGERPRINT_MISMATCH', message: 'Device fingerprint mismatch.' } },
-        HttpStatus.CONFLICT
+        HttpStatus.CONFLICT,
       );
     }
 
@@ -297,29 +296,86 @@ export class AuthService {
     return {
       accessToken: this.createAccessToken(record.userId),
       refreshToken: newToken.token,
-      expiresIn: 900
+      expiresIn: 900,
     };
   }
 
-  async logout(rawPayload: Record<string, unknown>): Promise<void> {
-    const payload = rawPayload as LogoutPayload;
-    if (typeof payload.refreshToken !== 'string') {
-      throw new HttpException(
-        { error: { code: 'AUTH_REFRESH_REQUIRED', message: 'Refresh token is required.' } },
-        HttpStatus.BAD_REQUEST
-      );
-    }
+  async logout(rawPayload: UnknownRecord): Promise<void> {
+    const payload = this.parseLogoutPayload(rawPayload);
 
     const record = this.store.refreshTokens.get(payload.refreshToken);
     if (!record) {
       throw new HttpException(
         { error: { code: 'AUTH_REFRESH_INVALID', message: 'Refresh token invalid.' } },
-        HttpStatus.UNAUTHORIZED
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
     record.revoked = true;
     this.store.refreshTokens.set(record.token, record);
+  }
+
+  private parseVerifyPayload(raw: UnknownRecord): VerifyPayload {
+    const token = raw.token;
+    if (typeof token !== 'string' || !token.trim()) {
+      throw new HttpException(
+        { error: { code: 'AUTH_TOKEN_REQUIRED', message: 'Verification token is required.' } },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return { token };
+  }
+
+  private parseLoginPayload(raw: UnknownRecord): LoginPayload {
+    const email = raw.email;
+    const password = raw.password;
+    ensureEmail(email);
+    ensurePassword(password);
+    const device = this.normalizeDevice(raw.device);
+    return {
+      email: email.toLowerCase(),
+      password,
+      device,
+    };
+  }
+
+  private parseRefreshPayload(raw: UnknownRecord): RefreshPayload {
+    const refreshToken = typeof raw.refreshToken === 'string' ? raw.refreshToken.trim() : '';
+    if (!refreshToken) {
+      throw new HttpException(
+        { error: { code: 'AUTH_REFRESH_REQUIRED', message: 'Refresh token is required.' } },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const fingerprint =
+      typeof raw.deviceFingerprint === 'string' ? raw.deviceFingerprint : undefined;
+    return { refreshToken, deviceFingerprint: fingerprint };
+  }
+
+  private parseLogoutPayload(raw: UnknownRecord): LogoutPayload {
+    const refreshToken = typeof raw.refreshToken === 'string' ? raw.refreshToken.trim() : '';
+    if (!refreshToken) {
+      throw new HttpException(
+        { error: { code: 'AUTH_REFRESH_REQUIRED', message: 'Refresh token is required.' } },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return { refreshToken };
+  }
+
+  private normalizeDevice(input: unknown): LoginPayload['device'] | undefined {
+    if (!input || typeof input !== 'object') {
+      return undefined;
+    }
+    const candidate = input as UnknownRecord;
+    const name = typeof candidate.name === 'string' ? candidate.name : undefined;
+    const fingerprint =
+      typeof candidate.fingerprint === 'string' ? candidate.fingerprint : undefined;
+    if (!name && !fingerprint) {
+      return undefined;
+    }
+    return { name, fingerprint };
   }
 
   private findUserByEmail(email: string) {
@@ -344,7 +400,7 @@ export class AuthService {
       deviceFingerprint,
       issuedAt: timestamp(),
       expiresAt: new Date(Date.now() + REFRESH_TTL_MS).toISOString(),
-      revoked: false
+      revoked: false,
     };
     this.store.refreshTokens.set(token, record);
     return record;

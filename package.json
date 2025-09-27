@@ -20,7 +20,11 @@
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "dev:stack": "node scripts/dev-stack.mjs",
-    "test:e2e": "playwright test frontend/apps/shopper/tests/e2e frontend/apps/brand-portal/tests/e2e"
+    "test:e2e": "playwright test frontend/apps/shopper/tests/e2e frontend/apps/brand-portal/tests/e2e",
+    "ns:shopper:android": "cd frontend/nativescript/shopper-lab && ns run android --no-hmr --env.skipInstall",
+    "ns:shopper:ios": "cd frontend/nativescript/shopper-lab && ns run ios --no-hmr --env.skipInstall",
+    "ns:brand:android": "cd frontend/nativescript/brand-lab && ns run android --no-hmr --env.skipInstall",
+    "ns:brand:ios": "cd frontend/nativescript/brand-lab && ns run ios --no-hmr --env.skipInstall"
   },
   "devDependencies": {
     "@playwright/test": "^1.45.0",

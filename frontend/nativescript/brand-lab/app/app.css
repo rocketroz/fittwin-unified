@@ -1,0 +1,29 @@
+.page {
+  background-color: #0f172a;
+}
+
+.action-bar {
+  color: #ffffff;
+  background-color: #22c55e;
+}
+
+TextField {
+  color: #e2e8f0;
+}
+
+Button.btn-primary {
+  background-color: #16a34a;
+  color: #ffffff;
+  border-radius: 12;
+  padding: 12;
+}
+
+.status-label {
+  color: #bbf7d0;
+  font-size: 12;
+  opacity: 0.85;
+}
+
+WebView {
+  border-radius: 12;
+}

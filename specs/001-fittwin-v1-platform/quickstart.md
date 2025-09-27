@@ -21,6 +21,25 @@ This quickstart outlines end-to-end flows to exercise the FitTwin v1 stack in st
    ```
    Provide `E2E_SHOPPER_URL` / `E2E_BRAND_URL` environment variables if you customise ports.
 
+### NativeScript Lab Shells (preview)
+The repository now ships NativeScript shells that wrap the AR Lab pages so you can compile quick native demos while native adapters are under construction.
+
+1. Install the NativeScript CLI (once):
+   ```bash
+   npm install -g nativescript
+   ```
+2. Install platform tooling (Xcode + CocoaPods for iOS, Android SDK/NDK for Android) per [NativeScript docs](https://docs.nativescript.org).
+3. From the repo root, run the desired target:
+   ```bash
+   # Shopper lab shell
+   npm run ns:shopper:ios      # or ns:shopper:android
+
+   # Brand lab shell
+   npm run ns:brand:ios        # or ns:brand:android
+   ```
+   The apps boot a WebView pointing to `process.env.NS_LAB_URL` / `NS_BRAND_URL` (defaults come from `stack.env`). Use the text field in-app to load a different endpoint when necessary.
+4. These shells are the staging ground for native AR adapters—swap the WebView for a NativeScript view once ARKit/ARCore capture modules are ready.
+
 ---
 
 ## Scenario 1: Shopper Signup → Try-On → Checkout
