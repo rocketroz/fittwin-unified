@@ -1,0 +1,2 @@
+{ "model":"gpt-5-codex", "auth":{"api_key_env":"OPENAI_API_KEY"},
+  "retrieval":{"index":"rag.yaml"}, "limits":{"max_input_tokens":32000,"max_output_tokens":4000} }
