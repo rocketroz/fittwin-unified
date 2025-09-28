@@ -7,3 +7,5 @@ coverage/
 .tmp/
 .env.local
 .env.*.local
+
+commandlinetools-mac-*.zip
