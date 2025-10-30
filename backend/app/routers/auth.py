@@ -9,20 +9,17 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from supabase import create_client
-import os
 
-from backend.app.services.auth_service import AuthService
-from backend.app.middleware.auth import get_current_user
+from app.services.auth_service import AuthService
+from app.middleware.auth import get_current_user
+from app.core.config import SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
 # Initialize Supabase client
-supabase = create_client(
-    os.getenv("SUPABASE_URL", ""),
-    os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-)
+supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 # Initialize auth service
 auth_service = AuthService(supabase)

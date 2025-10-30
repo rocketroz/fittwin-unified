@@ -13,12 +13,12 @@ Designed for AI systems, online retailers, and direct-to-consumer commerce.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.routers.measurements import router as measurements_router
-from backend.app.routers.auth import router as auth_router
-from backend.app.routers.cart import router as cart_router
-from backend.app.routers.orders import router as orders_router
-from backend.app.routers.brands import router as brands_router
-from backend.app.routers.referrals import router as referrals_router
+from app.routers.measurements import router as measurements_router
+from app.routers.auth import router as auth_router
+from app.routers.cart import router as cart_router
+from app.routers.orders import router as orders_router
+from app.routers.brands import router as brands_router
+from app.routers.referrals import router as referrals_router
 
 
 app = FastAPI(

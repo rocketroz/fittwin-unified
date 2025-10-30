@@ -9,11 +9,10 @@ from typing import List, Dict, Any
 from fastapi import APIRouter, Header, HTTPException, status, UploadFile, File
 from pydantic import BaseModel, Field
 
-from backend.app.core.config import get_settings
-from backend.app.schemas.errors import ErrorResponse
+from app.core.config import settings
+from app.schemas.errors import ErrorResponse
 
 router = APIRouter(prefix="/brands", tags=["brands"])
-settings = get_settings()
 
 
 # Pydantic Models

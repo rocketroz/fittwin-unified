@@ -10,11 +10,10 @@ from fastapi import APIRouter, Header, HTTPException, status, Query
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from backend.app.core.config import get_settings
-from backend.app.schemas.errors import ErrorResponse
+from app.core.config import settings
+from app.schemas.errors import ErrorResponse
 
 router = APIRouter(prefix="/orders", tags=["orders"])
-settings = get_settings()
 
 
 # Pydantic Models

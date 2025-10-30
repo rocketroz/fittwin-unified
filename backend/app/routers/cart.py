@@ -9,11 +9,10 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, Header, HTTPException, status
 from pydantic import BaseModel, Field
 
-from backend.app.core.config import get_settings
-from backend.app.schemas.errors import ErrorResponse
+from app.core.config import settings
+from app.schemas.errors import ErrorResponse
 
 router = APIRouter(prefix="/cart", tags=["cart"])
-settings = get_settings()
 
 
 # Pydantic Models
