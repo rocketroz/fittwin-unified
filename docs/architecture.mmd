@@ -1,0 +1,26 @@
+graph TD
+    subgraph User Interfaces
+        A[Mobile App (NativeScript)] -->|Captures Measurements| C
+        B[Web App (React/Vue)] -->|Manages Account & Commerce| C
+    end
+
+    subgraph Backend Services
+        C(FitTwin Platform API) -->|FastAPI| D{Database (Supabase)}
+        C -->|Uses| E[AI Agents (CrewAI)]
+        C -->|Triggers| F[Background Workers]
+    end
+
+    subgraph Data & AI
+        D -->|Stores| G[User Data, Orders, Products]
+        E -->|Performs| H[Autonomous Development Tasks]
+        F -->|Processes| I[Avatar Generation, Rendering]
+    end
+
+    subgraph External Services
+        C -->|Integrates with| J[Stripe (Payments)]
+        C -->|Integrates with| K[Email/Push Notifications]
+    end
+
+    A -->|iOS/Android| C
+    B -->|HTTPS| C
+
