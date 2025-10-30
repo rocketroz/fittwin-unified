@@ -467,6 +467,16 @@ open FitTwinApp.xcodeproj
 
 ---
 
+## Codex Session Logs
+
+Capture a short record each time you collaborate with Codex by running
+`scripts/log_codex_session.py`. The helper writes Markdown entries to
+`codex_sessions/` with timestamps, notes, and optional git status/diff snapshots.
+See `docs/CODEX_SESSION_LOGGING.md` for usage examples, available flags, and
+instructions on enabling the bundled `post-commit` hook for automatic logging.
+
+---
+
 ## Contributing
 
 This is a private repository. For questions or contributions, contact Laura Tornga (@rocketroz).

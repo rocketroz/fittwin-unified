@@ -6,18 +6,27 @@ This module implements the two main DMaaS API endpoints:
 - /measurements/recommend: Generate size recommendations from normalized measurements
 """
 
-from fastapi import APIRouter, Depends, Header, HTTPException
-from typing import Optional
 import os
+from dotenv import load_dotenv
+from typing import Optional
+from fastapi import APIRouter, Depends, Header, HTTPException
 
+# Load environment variables FIRST
+load_dotenv()
+
+# Create the router BEFORE using it
 router = APIRouter(prefix="/measurements", tags=["measurements"])
 
-# Simple API key check (for staging)
+# Now load the API key
 VALID_API_KEY = os.getenv("API_KEY", "staging-secret-key")
 
 
 def verify_api_key(x_api_key: Optional[str] = Header(None)):
     """Verify API key for authentication."""
+    print(f"🔍 Received API Key: {x_api_key}")
+    print(f"🔍 Expected API Key: {VALID_API_KEY}")
+    print(f"🔍 Keys match: {x_api_key == VALID_API_KEY}")
+    
     if x_api_key != VALID_API_KEY:
         raise HTTPException(
             status_code=401,
@@ -28,7 +37,6 @@ def verify_api_key(x_api_key: Optional[str] = Header(None)):
                 "errors": [],
             },
         )
-
 
 @router.post("/validate", dependencies=[Depends(verify_api_key)])
 def validate_measurements(input_data: dict):
