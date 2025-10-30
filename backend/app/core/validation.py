@@ -13,8 +13,8 @@ from typing import Dict
 
 from fastapi import HTTPException
 
-from backend.app.schemas.errors import ErrorDetail, ErrorResponse
-from backend.app.schemas.measure_schema import (
+from app.schemas.errors import ErrorDetail, ErrorResponse
+from app.schemas.measure_schema import (
     MeasurementInput,
     MeasurementNormalized,
     MediaPipeLandmarks,

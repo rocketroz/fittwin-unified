@@ -1,0 +1,43 @@
+#!/bin/sh
+# Auto-generate a Codex session log after each commit.
+
+set -eu
+
+# Allow users to opt out per-invocation.
+if [ "${SKIP_CODEX_SESSION_LOG:-}" = "1" ]; then
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT_PATH="${REPO_ROOT}/scripts/log_codex_session.py"
+
+if [ ! -x "${SCRIPT_PATH}" ]; then
+  echo "[codex-log] Missing or non-executable ${SCRIPT_PATH}; skipping." >&2
+  exit 0
+fi
+
+# Avoid logging merge commits that Git creates automatically.
+if git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1; then
+  exit 0
+fi
+
+COMMIT_HASH="$(git rev-parse HEAD)"
+TITLE="$(git log -1 --pretty=%s)"
+BODY="$(git log -1 --pretty=%b)"
+
+cd "${REPO_ROOT}"
+
+set -- "-n" "Commit: ${COMMIT_HASH}" --commit "${COMMIT_HASH}" --skip-status
+
+if [ -n "${BODY}" ]; then
+  while IFS='' read -r line; do
+    [ -n "${line}" ] || continue
+    set -- "$@" "-n" "${line}"
+  done <<EOF
+${BODY}
+EOF
+fi
+
+"${SCRIPT_PATH}" "${TITLE}" "$@" >/dev/null 2>&1 || {
+  echo "[codex-log] Failed to record session; run scripts/log_codex_session.py manually." >&2
+}
