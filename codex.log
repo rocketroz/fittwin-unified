@@ -17,3 +17,4 @@
 [2025-11-03 10:21:05] FIX    :: Reconciled measurement schemas, error envelopes, and measurement routers; restored agent tool logic to single-source implementation.
 [2025-11-03 10:54:33] TEST   :: Ran `scripts/test_all.sh`; backend (11) and agent (9) suites now passing after cleanup.
 [2025-11-03 11:10:02] COMMIT :: Recorded `chore(repo): reconcile merge cleanup` and pushed to `origin/main`; left `screenshots/` untracked pending asset policy.
+[2025-11-03 15:47:31] DOCS   :: Captured CrewAI merge summary in `PR_DESCRIPTION.md`; committed (`docs: capture CrewAI merge summary in PR_Description.md`) and pushed `merge-crew-ai` to origin.
