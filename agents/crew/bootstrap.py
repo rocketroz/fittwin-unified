@@ -1,43 +1,15 @@
 import os
-from crewai import Agent, Task, Crew, LLM
+
+from crewai import Agent, Crew, LLM, Task
+
 from agents.client.api import dmaas_latest
 
-def main():
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-            raise RuntimeError("OPENAI_API_KEY not found in environment.")
-    llm = LLM(model=os.getenv("AGENT_MODEL", "gpt-4o-mini"), api_key=api_key)
 
-    planner = Agent(
-        role="Planner",
-        goal="Inspect FitTwin API data and propose next engineering steps",
-        backstory="You think like a staff engineer who ships.",
-        llm=llm,
-        verbose=True,
-    )
-
-    executor = Agent(
-        role="Executor",
-        goal="Turn plans into a numbered, actionable checklist",
-        backstory="You write precise steps that run today.",
-        llm=llm,
-        verbose=True,
-    )
-
-        # Pull live data from the backend
-        data = {}
-        try:
-            data = dmaas_latest()
-        except Exception as e:
-            data = {"error": f"Could not reach /dmaas/latest: {e}"}
-import os
-from crewai import Agent, Task, Crew, LLM
-from agents.client.api import dmaas_latest
-
-def main():
+def main() -> None:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not found in environment.")
+
     llm = LLM(model=os.getenv("AGENT_MODEL", "gpt-4o-mini"), api_key=api_key)
 
     planner = Agent(
@@ -56,12 +28,10 @@ def main():
         verbose=True,
     )
 
-    # Pull live data from the backend
-    data = {}
     try:
         data = dmaas_latest()
-    except Exception as e:
-        data = {"error": f"Could not reach /dmaas/latest: {e}"}
+    except Exception as exc:  # pragma: no cover - network guard
+        data = {"error": f"Could not reach /dmaas/latest: {exc}"}
 
     t1 = Task(
         description=(
@@ -76,12 +46,13 @@ def main():
     t2 = Task(
         description="Convert the planner notes into a numbered checklist with 3 to 5 concrete steps.",
         agent=executor,
-        expected_output="A numbered checklist with specific commands, files, or endpoints."
+        expected_output="A numbered checklist with specific commands, files, or endpoints.",
     )
 
     result = Crew(agents=[planner, executor], tasks=[t1, t2]).kickoff()
     print("\n=== Crew Output ===\n")
     print(result)
+
 
 if __name__ == "__main__":
     main()

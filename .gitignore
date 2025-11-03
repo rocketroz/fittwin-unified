@@ -1,4 +1,51 @@
-.env
+.DS_Store
+
+# Python
+__pycache__/
 **/__pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*$py.class
+
+# Virtualenvs
+.venv/
+.venv-*/
+venv/
+env/
+ENV/
+.venv-agents/
+
+# Packaging
+build/
+dist/
+*.egg
+*.egg-info/
+
+# Pytest
+.pytest_cache/
+
+# Coverage
+.coverage
+coverage.xml
+coverage/
+
+# mypy
+.mypy_cache/
+
+# Editors
+.vscode/
+
+# Environment files
+.env
+.env.*
+!agents/.env.example
+!.env.example
+!.env.test
+
+# macOS
 *.xcuserstate
+
+# Node
+node_modules/

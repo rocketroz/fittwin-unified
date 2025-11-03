@@ -18,6 +18,12 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>FITWIN_API_KEY</key>
+	<string>staging-secret-key</string>
+	<key>FITWIN_API_URL</key>
+	<string>https://fitwin-dev.ngrok-free.app</string>
+	<key>FITWIN_ENV</key>
+	<string>dev</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>

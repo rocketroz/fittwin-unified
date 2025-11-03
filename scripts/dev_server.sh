@@ -21,8 +21,8 @@ if [ ! -f ".venv/installed" ]; then
     touch .venv/installed
 fi
 
-# Set PYTHONPATH
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+# Set PYTHONPATH (repo root + backend package for absolute imports)
+export PYTHONPATH="${PYTHONPATH}:$(pwd):$(pwd)/backend"
 
 # Check if .env exists
 if [ ! -f ".env" ]; then
@@ -30,6 +30,12 @@ if [ ! -f ".env" ]; then
     cp .env.example .env
     echo "📝 Please edit .env with your credentials before running the server."
     exit 1
+fi
+
+# Optionally load backend/.env secrets for local dev (mirrors Manus workflow)
+if [ -f "backend/.env" ]; then
+    # shellcheck disable=SC2046
+    export $(grep -v '^#' backend/.env | xargs)
 fi
 
 # Start the server

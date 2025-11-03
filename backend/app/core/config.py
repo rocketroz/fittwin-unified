@@ -25,6 +25,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 class Settings:
     env: str = os.getenv("ENV", "dev")
     vendor_mode: str = os.getenv("VENDOR_MODE", "stub")
+    api_key: str = os.getenv("API_KEY", "staging-secret-key")
 
 
 settings = Settings()

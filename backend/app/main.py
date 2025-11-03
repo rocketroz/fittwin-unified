@@ -39,6 +39,8 @@ app = FastAPI(
 )
 
 # CORS middleware for cross-origin requests
+API_PREFIX = "/api/v1"
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # TODO: Restrict to specific origins in production
@@ -47,13 +49,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(measurements_router)
-app.include_router(auth_router)
-app.include_router(cart_router)
-app.include_router(orders_router)
-app.include_router(brands_router)
-app.include_router(referrals_router)
+# Include routers under the shared API prefix to keep public URLs stable.
+app.include_router(measurements_router, prefix=API_PREFIX)
+app.include_router(auth_router, prefix=API_PREFIX)
+app.include_router(cart_router, prefix=API_PREFIX)
+app.include_router(orders_router, prefix=API_PREFIX)
+app.include_router(brands_router, prefix=API_PREFIX)
+app.include_router(referrals_router, prefix=API_PREFIX)
+app.include_router(measurements_router)  # Legacy root paths (/measurements/*)
 
 
 @app.get("/")

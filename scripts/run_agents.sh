@@ -1,23 +1,14 @@
-#!/bin/bash
-# FitTwin Platform - CrewAI Agent Runner Script
-
-set -e
-
-echo "🤖 Starting FitTwin CrewAI Agents..."
-
-# Activate virtual environment
-source .venv/bin/activate
-
-# Set PYTHONPATH
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-
-# Check if .env exists
-if [ ! -f "agents/.env" ]; then
-    echo "⚠️  Warning: agents/.env file not found."
-    echo "📝 Please create agents/.env with your OpenAI API key."
-    exit 1
+#!/usr/bin/env bash
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+if [ ! -d ".venv-agents" ]; then
+  echo "Missing .venv-agents. Create it with Python 3.11 and install crewai, openai, python-dotenv."
+  exit 1
 fi
-
-# Run the measurement crew
-echo "✅ Starting Measurement Crew..."
-python agents/crew/measurement_crew.py
+if [ -z "${OPENAI_API_KEY:-}" ]; then
+  echo "OPENAI_API_KEY is not set in this shell. Export it, then re-run."
+  exit 1
+fi
+source .venv-agents/bin/activate
+python agents/crew/bootstrap.py

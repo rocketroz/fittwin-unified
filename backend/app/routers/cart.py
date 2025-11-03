@@ -18,8 +18,9 @@ router = APIRouter(prefix="/cart", tags=["cart"])
 # Pydantic Models
 class AddItemRequest(BaseModel):
     product_id: str = Field(..., description="Product ID")
-    variant_sku: str = Field(..., description="Variant SKU")
-    qty: int = Field(1, ge=1, le=5, description="Quantity (1-5)")
+    variant_id: str = Field(..., description="Variant identifier/SKU")
+    quantity: int = Field(1, ge=1, le=5, description="Quantity (1-5)")
+    size: str | None = Field(None, description="Size label (optional)")
     source: str | None = Field(None, description="Source of add (e.g., 'tryon', 'pdp')")
 
 
@@ -125,15 +126,17 @@ async def add_cart_item(
     # 3. Add to cart or update existing item
     # 4. Return updated cart item
     
+    cart_item_id = "item-demo-456"
     return {
         "cart_id": "cart-demo-123",
-        "item_id": "item-demo-456",
+        "cart_item_id": cart_item_id,
+        "item_id": cart_item_id,
         "item": {
             "product_id": request.product_id,
-            "variant_sku": request.variant_sku,
+            "variant_sku": request.variant_id,
             "name": "Demo Product",
-            "size_label": "M",
-            "qty": request.qty,
+            "size_label": request.size or "M",
+            "qty": request.quantity,
             "unit_price": 4200,
             "currency": "USD",
             "recommended": True,

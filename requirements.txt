@@ -18,7 +18,8 @@ python-jose[cryptography]==3.3.0
 stripe==7.11.0
 
 # AI & ML
-mediapipe>=0.10.0
+# Mediapipe 0.10.9 ships universal2 wheels compatible with Python 3.9-3.11
+mediapipe==0.10.9
 crewai>=0.1.0
 openai==1.10.0
 
@@ -28,7 +29,7 @@ pydantic-settings==2.1.0
 email-validator==2.1.0
 
 # HTTP Client
-httpx==0.26.0
+httpx==0.24.1
 requests==2.31.0
 
 # Environment

@@ -184,8 +184,9 @@ JWT_EXPIRATION_MINUTES=15
 
 **Edit `agents/.env`:**
 ```env
-# OpenAI for CrewAI
-OPENAI_API_KEY=sk-...
+# OpenAI for CrewAI (optional)
+# We currently keep OPENAI_API_KEY only in GitHub Actions secrets. Export it manually if you need to run agents locally.
+# OPENAI_API_KEY=sk-...
 AGENT_MODEL=gpt-4o-mini
 
 # Backend API

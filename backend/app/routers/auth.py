@@ -5,6 +5,8 @@ Handles user signup, signin, token refresh, and signout.
 Complete implementation with auth service integration.
 """
 
+import logging
+
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, EmailStr
 from typing import Optional
@@ -15,14 +17,44 @@ from app.middleware.auth import get_current_user
 from app.core.config import SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
-# Initialize Supabase client
-supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+def _init_supabase_client():
+    """
+    Create a Supabase client if credentials are available.
 
-# Initialize auth service
-auth_service = AuthService(supabase)
+    Returns:
+        Supabase client instance or None when not configured/available.
+    """
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        logger.info("Supabase credentials missing; auth routes will be disabled.")
+        return None
+
+    try:
+        return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    except Exception as exc:  # pragma: no cover - defensive guard
+        logger.warning("Supabase client initialization failed: %s", exc)
+        return None
+
+
+supabase = _init_supabase_client()
+auth_service = AuthService(supabase) if supabase else None
+
+
+def _require_auth_service() -> AuthService:
+    """
+    Ensure the authentication service is available, otherwise raise HTTP 503.
+    """
+    if auth_service is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service is not configured. "
+                   "Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to enable auth routes.",
+        )
+    return auth_service
 
 
 # Request/Response Models
@@ -66,8 +98,10 @@ async def signup(request: SignupRequest):
     Raises:
         HTTPException: If signup fails
     """
+    service = _require_auth_service()
+
     try:
-        result = await auth_service.signup(
+        result = await service.signup(
             email=request.email,
             password=request.password,
             name=request.name
@@ -94,8 +128,10 @@ async def signin(request: SigninRequest):
     Raises:
         HTTPException: If signin fails
     """
+    service = _require_auth_service()
+
     try:
-        result = await auth_service.signin(
+        result = await service.signin(
             email=request.email,
             password=request.password
         )
@@ -121,8 +157,10 @@ async def refresh_token(request: RefreshTokenRequest):
     Raises:
         HTTPException: If refresh fails
     """
+    service = _require_auth_service()
+
     try:
-        result = await auth_service.refresh_access_token(request.refresh_token)
+        result = await service.refresh_access_token(request.refresh_token)
         return result
     except ValueError as e:
         raise HTTPException(
@@ -142,7 +180,8 @@ async def signout(request: RefreshTokenRequest):
     Returns:
         No content
     """
-    await auth_service.signout(request.refresh_token)
+    service = _require_auth_service()
+    await service.signout(request.refresh_token)
 
 
 @router.get("/me")
@@ -159,6 +198,12 @@ async def get_current_user_info(user_id: str = Depends(get_current_user)):
     Raises:
         HTTPException: If user not found
     """
+    if supabase is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service is not configured."
+        )
+
     user_response = supabase.table("users")\
         .select("id, email, name, role, created_at")\
         .eq("id", user_id)\
