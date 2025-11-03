@@ -1,175 +1,109 @@
-# Migrate FitTwin Codebase to Monorepo Structure
+# Merge CrewAI Measurement Stack into Unified Monorepo
 
 ## Summary
 
-This PR merges the newly migrated monorepo branch (`monorepo-migration`) into `main`. The migration consolidates backend, agents, frontend, and data into a single cohesive repository structure. All imports, dependencies, and environment configurations have been standardized. All tests have been verified as passing, and new utility scripts are included for development, testing, and agent execution.
+This PR merges the `merge-crew-ai` integration branch into `main`. It brings the CrewAI measurement workflow, refreshed backend services, iOS LiDAR capture flow, Supabase schema changes, and the legacy web experience into the shared monorepo. The result preserves the measurement agents’ capabilities while aligning environments, documentation, and CI so backend APIs, agents, and clients ship from a single repository.
 
-## Key Changes
+## Highlights
 
-### File Structure Reorganization
-- ✅ **Backend:** `src/server/*` → `backend/app/*`
-  - Routers: `backend/app/routers/`
-  - Schemas: `backend/app/schemas/`
-  - Services: `backend/app/services/`
-  - Core: `backend/app/core/`
-- ✅ **Agents:** Root-level agents → `agents/crew/*`
-  - Added: `agents/config/`, `agents/prompts/`, `agents/tools/`
-- ✅ **Data:** `migrations/*` → `data/supabase/migrations/*`
-- ✅ **Tests:** `tests/*` → `tests/backend/*`
-- ✅ **Frontend:** `src/client/*` → `frontend/src/*`
-- ✅ **Docs:** Added `docs/runbooks/`, moved `README_LOCAL.md` → `docs/README_legacy.md`
-
-### Import Path Updates
-All Python imports updated to reflect new structure:
-```python
-# Before
-from src.server.main import app
-from src.server.api.measurement_job import router
-from src.server.models import MeasurementsResponse
-
-# After
-from backend.app.main import app
-from backend.app.routers.measurements import router
-from backend.app.schemas.measure_schema import MeasurementNormalized
-```
-
-### New Files
-- **Scripts:**
-  - `scripts/dev_server.sh` - Start development server
-  - `scripts/test_all.sh` - Run all tests
-  - `scripts/run_agents.sh` - Execute CrewAI agents
-- **Configuration:**
-  - `backend/.env.example` - Backend environment template
-  - `agents/.env.example` - Agents environment template
-- **Documentation:**
-  - Updated `README.md` with comprehensive monorepo guide
-  - `FITWIN_MONOREPO_OPS.md` - Operations documentation
-- **Dependencies:**
-  - `backend/requirements.txt` - Backend-specific dependencies (added httpx)
-
-### CI/CD Updates
-- Updated `.github/workflows/ci.yml` to use `backend/requirements.txt`
-- Tests now run from `tests/backend/` directory
-- Added PYTHONPATH configuration for proper imports
+- **CrewAI Agents**
+  - Ports measurement crew bootstrap, client API, and shared tools into `agents/`
+  - Adds `.env.example` scaffolding plus `scripts/run_agents.sh` and `scripts/run_agents_env.sh`
+  - Introduces pytest coverage for measurement tool wiring in `tests/agents/`
+- **Backend Enhancements**
+  - Updates configuration, validation helpers, and measurement routers for CrewAI payloads
+  - Adds Supabase provenance migration and backend-specific `requirements.txt`
+  - Documents operations via `docs/AGENTS_BACKEND_NOTES.md`, `docs/deployment_guide.md`, and refreshed onboarding guides
+- **iOS Capture Flow**
+  - Integrates camera session controller, LiDAR measurement calculator, and new `CapturedPhoto` model
+  - Refreshes `FitTwinAPI` client plus Info.plist entitlements to target the unified backend
+- **Frontend & Legacy Web**
+  - Imports legacy Manus web client and supporting UI component library
+  - Adds capture stub under `frontend/src/photoCaptureStub.js` to unblock experiments
+- **Automation & CI**
+  - Adds GitHub workflows for backend + monorepo CI
+  - Normalizes `scripts/dev_server.sh` and `scripts/test_all.sh` to operate from the unified layout
+- **Docs & Assets**
+  - Adds merge diary `CrewAIMerge.log`, ops handbook `FITWIN_MONOREPO_OPS.md`, deployment guides, and prompt archives
+  - Captures screenshots cataloging capture UX and QA checkpoints
 
 ## Testing
 
-### Test Results
+| Suite | Command | Result |
+| --- | --- | --- |
+| Backend + Agents | `bash scripts/test_all.sh` | ✅ 21 tests, warnings only |
+
+> Backend suite covers carts, measurements, and validation endpoints; agent suite exercises measurement tools and client API wrappers.
+
+### Optional Manual QA
+
 ```bash
-$ bash scripts/test_all.sh
-============================= test session starts ==============================
-collected 2 items
-
-tests/backend/test_measure_and_recs.py ..                                [100%]
-
-============================== 2 passed in 0.49s ===============================
-```
-
-### API Verification
-Key endpoints validated:
-- ✅ `POST /measurements/validate` — Normalizes measurements and MediaPipe landmarks
-- ✅ `POST /measurements/recommend` — Returns size recommendation payload
-
-### Manual Testing
-```bash
-# Start server
+# Backend API smoke (requires backend .env)
 bash scripts/dev_server.sh
-
-# Test endpoints
 curl -s -X POST http://127.0.0.1:8000/measurements/validate \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: staging-secret-key" \
-  -d '{"waist_natural": 32, "unit": "in"}' | python -m json.tool
+  -H "X-API-Key: <local-api-key>" \
+  -d '{"height_cm": 172, "waist_natural_cm": 80, "source": "mediapipe"}' | python -m json.tool
 
-curl -s -X POST http://127.0.0.1:8000/measurements/recommend \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: staging-secret-key" \
-  -d '{"height_cm": 170, "chest_cm": 100, "waist_natural_cm": 80, "source": "mediapipe"}' | python -m json.tool
+# CrewAI agent workflow (after sourcing scripts/run_agents_env.sh)
+bash scripts/run_agents.sh --crew measurement
 ```
 
-## Migration Statistics
+## Metrics
 
-- **Files changed:** 44
-- **Lines added:** 286
-- **Lines removed:** 145
-- **Git history:** ✅ Preserved using `git mv`
-- **Tests passing:** ✅ 2/2 (100%)
-- **API endpoints:** ✅ 2/2 working
+- **Files changed:** 281
+- **Lines added:** ~26k
+- **Lines removed:** ~1k
+- **Assets added:** iOS LiDAR sources, legacy web UI, screenshots, system prompts
 
-## Risks & Mitigation
+## Risks & Mitigations
 
-### Potential Risks
-1. **External scripts** referencing old paths (`src/server/*`)
-   - **Mitigation:** Search codebase for old import patterns
-2. **Environment variables** format changes
-   - **Mitigation:** Provided `.env.example` templates
-3. **CI/CD pipelines** using old paths
-   - **Mitigation:** Updated GitHub Actions workflow
+| Risk | Mitigation |
+| --- | --- |
+| Environment drift between backend and agents | Shared `.env.example` templates and run scripts |
+| MediaPipe compatibility on Apple Silicon | Pinned dependency `mediapipe==0.10.9` verified under Python 3.11 |
+| Large binary assets inflating clone size | Documented in `CrewAIMerge.log`; consider artifact storage follow-up |
+| CI secret requirements | Workflows scoped to lint/test only; deployment secrets unchanged |
 
-### Breaking Changes
-- Import paths changed from `src.server.*` to `backend.app.*`
-- Requirements file moved from root to `backend/requirements.txt`
-- Test directory structure changed to `tests/backend/`
+### Breaking / Notable Changes
+- Backend service stubs (brands, cart, orders) remain partially implemented; coverage report documents TODOs
+- iOS project assumes LiDAR-capable devices; gating handled by `DeviceRequirementChecker`
+- Legacy Manus web assets are included for reference and aren’t wired into production deploys
 
 ## Rollback Plan
 
-If issues arise after merge:
-
-### Option 1: Revert to Backup Branch
 ```bash
-git checkout monorepo-migration-backup
-```
-
-### Option 2: Reset Main Branch
-```bash
-git checkout main
-git reset --hard origin/main
-```
-
-### Option 3: Revert Merge Commit
-```bash
-git revert -m 1 <merge-commit-hash>
+# Revert merge commit
+git revert -m 1 <merge-commit>
 git push origin main
+
+# Or reset branch if hotfix needed
+git checkout main
+git reset --hard origin/main~1
+git push -f origin main
 ```
 
 ## Deployment Checklist
 
 Before merging:
-- [ ] All tests passing locally
-- [ ] CI/CD pipeline passing
-- [ ] Environment templates reviewed
-- [ ] Documentation updated
-- [ ] Team notified of import path changes
+- [ ] Secrets available for backend `.env`, agents `.env`, and iOS Info.plist
+- [ ] QA pass of capture flow against staging backend
+- [x] `bash scripts/test_all.sh`
 
 After merging:
-- [ ] Update local development environments
-- [ ] Update deployment scripts
-- [ ] Update any external integrations
-- [ ] Monitor for import errors
+- [ ] Apply Supabase migration `002_measurement_provenance.sql`
+- [ ] Update iOS provisioning profiles if bundle IDs changed
+- [ ] Communicate new docs and agent workflows to cross-functional teams
 
-## Additional Notes
+## Follow-ups
 
-### Benefits of Monorepo Structure
-- **Better organization:** Clear separation of backend, agents, frontend
-- **Easier navigation:** Logical directory structure
-- **Improved maintainability:** Dedicated locations for configs, scripts, tests
-- **Professional structure:** Industry-standard layout
-
-### Future Improvements
-- Add agent tests in `tests/agents/`
-- Expand `docs/runbooks/` with operational guides
-- Add frontend tests when UI is developed
-- Implement pre-commit hooks for code quality
-
-## References
-
-- Full migration report: `ChatGPT_Migration_Report.pdf`
-- Operations guide: `FITWIN_MONOREPO_OPS.md`
-- Original structure: `docs/README_legacy.md`
+- Expand backend service coverage now that scaffolding is in place
+- Enable linting in CI once outstanding issues are addressed (`RUN_LINT=1`)
+- Trim or externalize large screenshot assets before release packaging
+- Schedule end-to-end capture test across iOS app → backend → CrewAI workflow
 
 ---
 
 **Ready to merge:** ✅ Yes  
-**Breaking changes:** ⚠️ Import paths updated  
-**Tests passing:** ✅ 2/2  
-**Documentation:** ✅ Complete
+**Blocking issues:** ⚠️ Ensure environment secrets available for QA  
+**Tests executed:** ✅ `bash scripts/test_all.sh`
