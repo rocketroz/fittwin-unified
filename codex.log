@@ -18,3 +18,5 @@
 [2025-11-03 10:54:33] TEST   :: Ran `scripts/test_all.sh`; backend (11) and agent (9) suites now passing after cleanup.
 [2025-11-03 11:10:02] COMMIT :: Recorded `chore(repo): reconcile merge cleanup` and pushed to `origin/main`; left `screenshots/` untracked pending asset policy.
 [2025-11-03 15:47:31] DOCS   :: Captured CrewAI merge summary in `PR_DESCRIPTION.md`; committed (`docs: capture CrewAI merge summary in PR_Description.md`) and pushed `merge-crew-ai` to origin.
+[2025-11-05 13:34:22] OPS    :: Killed lingering uvicorn processes (PIDs 67323/67326, 84436/84439) and relaunched backend with `nohup uvicorn backend.app.main:app --host 127.0.0.1 --port 8000` after `scripts/dev_server.sh` hit sandbox bind restrictions; startup still logs the Supabase `proxy` kwarg warning and `/dmaas/latest` 404s.
+[2025-11-05 13:41:55] OPS    :: Recreated `.venv-agents` under Python 3.11 (initial Python 3.14 env failed on `tiktoken` Rust build) and installed `crewai/openai/python-dotenv`; `scripts/run_agents_env.sh` now imports properly when `PYTHONPATH` is set but aborts with OpenAI 401s because `.env` still contains the placeholder `OPENAI_API_KEY`.

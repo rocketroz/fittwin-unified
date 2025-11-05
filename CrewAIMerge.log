@@ -52,3 +52,11 @@
 - `bash scripts/test_all.sh` now passes end-to-end (backend + agent suites) using the new env defaults; lint remains opt-in, coverage still warns about placeholder crew files.
 - OPENAI_API_KEY remains stored only in GitHub Actions secrets for CI; local `.env` files intentionally omit it to avoid accidental leaks. Export it manually if/when agents need to run locally.
 - NOTE: git add/commit operations succeed locally, but Codex’s sandbox cannot create `.git/index.lock` (Operation not permitted), so staging and committing must be performed from the macOS terminal until that permission issue is resolved.
+
+## 2025-11-05 - Dev stack restart attempt
+- Terminated the lingering uvicorn pair (PIDs 67323/67326, later 84436/84439) and confirmed no backend listeners remained before relaunching.
+- `scripts/dev_server.sh` could not bind `0.0.0.0:8000` inside the sandbox (Operation not permitted), so the backend now runs via `nohup uvicorn backend.app.main:app --host 127.0.0.1 --port 8000` with `PYTHONPATH` exported; current parent/child PIDs are 84797/84800.
+- Startup still logs `Supabase client initialization failed: Client.__init__() got an unexpected keyword argument 'proxy'` plus `/dmaas/latest` 404s when agents probe the route; backend otherwise serves docs/health locally.
+- Recreated `.venv-agents` after discovering the prior run used Python 3.14 (which triggered a Rust/tiktoken wheel build). New env uses Python 3.11 and installs `crewai`, `openai`, `python-dotenv`, though the install spammed many dependencies (onnxruntime, uv, etc.).
+- `./scripts/run_agents_env.sh` now launches once `PYTHONPATH` includes the repo root, but it fails immediately because `.env` still exports the placeholder `OPENAI_API_KEY=your-openai-api-key`, so OpenAI returns 401 and the Crew output aborts before finishing.
+- Action items before the next attempt: (1) update `.env`/shell with a real `OPENAI_API_KEY`, (2) consider stubbing `/dmaas/latest` locally or pointing `FITWIN_API_URL` at an environment that serves it, and (3) investigate the Supabase proxy kwarg warning during backend startup.
