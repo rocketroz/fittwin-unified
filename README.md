@@ -2,6 +2,17 @@
 
 FitTwin is a monorepo that bundles the NestJS backend, Next.js shopper and brand portals, and NativeScript lab shells used for native demos. This README captures how we spin up the full stack locally and the tooling you need around it.
 
+> **New:** CrewAI/Manus measurement assets, Supabase runbooks, and unified
+> platform documentation now live under `services/`, `ai/`, `supabase/`, and
+> `docs/`. Start with `docs/README.md` for an index of the imported materials,
+> and use `services/python/measurement` as the FastAPI home while we port the
+> logic into Nest modules.
+
+Additional reference clients:
+- Native React/Vite shopper flows (`frontend/reference/unified-web`)
+- Manus capture web app (`frontend/reference/manus-web`)
+- SwiftUI LiDAR capture prototype (`mobile/ios/FitTwinApp`)
+
 ## Prerequisites
 
 ### Core toolchain
@@ -63,6 +74,33 @@ PLAYWRIGHT_BROWSERS_READY=true npm run test:e2e
 ```
 
 Override `E2E_SHOPPER_URL` / `E2E_BRAND_URL` if you changed ports in `stack.env`.
+
+To exercise the full mixed stack (Node + Python + CrewAI), run:
+
+```bash
+npm run test:full
+```
+
+This script runs turborepo tests, then calls `services/python/measurement/scripts/test_all.sh` to exercise the FastAPI backend and CrewAI suites (honouring `.env.test`). If the Python virtualenv is missing (or packages are unavailable offline), the script exits gracefully with a warning.
+
+## Database modes
+
+The Nest backend now supports two Postgres targets:
+
+- **Local** (default): set up a local Postgres instance, apply the SQL under `supabase/migrations/`, and run
+  ```bash
+  export DATABASE_MODE=local
+  export DATABASE_URL=postgres://fit:fit@localhost:5432/fittwin
+  npm run dev:stack
+  ```
+- **Supabase**: point at a hosted Supabase project with RLS enabled
+  ```bash
+  export DATABASE_MODE=supa
+  export DATABASE_URL="postgres://<service-role-user>:<service-role-key>@<project>.supabase.co:5432/postgres"
+  npm run dev:stack
+  ```
+
+`DATABASE_MODE` defaults to `local` if omitted; override TLS/SSL settings via standard TypeORM options when you introduce the shared `DatabaseModule`.
 
 ## NativeScript lab shells
 

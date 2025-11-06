@@ -32,6 +32,7 @@ FitTwin v1 delivers an integrated shopper journey: account creation, AI twin gen
 **Language/Version**: Backend — Node.js 20 (TypeScript, NestJS services); Frontend — React/Next.js 14 with shared component library.  
 **Primary Dependencies**: NestJS + Fastify adapters, PostgreSQL 15, Redis 7, Stripe Payments/Billing, AWS S3 for media, AWS SQS for async jobs, OpenTelemetry SDK, SendGrid for comms.  
 **Storage**: PostgreSQL for transactional data (partitioned orders/event logs); Redis for sessions/rate-limit counters; S3 buckets for avatars/renders/assets with AV scanning.  
+**Database Modes**: `DATABASE_MODE=local` targets developer Postgres, `DATABASE_MODE=supa` targets Supabase (service-role connection with RLS enabled).  
 **Testing**: Jest (unit), Supertest (contract/API), Pactflow for consumer contracts, Playwright (end-to-end shopper/brand flows), k6 for try-on latency smoke.  
 **Target Platform**: Containerized web stack (Kubernetes) serving shopper web app + brand portal over CDN; backend services exposed via API gateway.  
 **Project Type**: web (frontend + backend services).  

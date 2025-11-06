@@ -1,0 +1,35 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "DATABASE_MODE",
+    "DATABASE_URL",
+    "SUPABASE_CA_CERT"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "build/**"
+      ]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "coverage/**",
+        "test-results/**"
+      ],
+      "inputs": [
+        "src/**/*",
+        "tests/**/*"
+      ]
+    },
+    "dev": {
+      "cache": false
+    }
+  }
+}

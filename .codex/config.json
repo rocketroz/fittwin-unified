@@ -1,2 +1,8 @@
-{ "model":"gpt-5-codex", "auth":{"api_key_env":"OPENAI_API_KEY"},
-  "retrieval":{"index":"rag.yaml"}, "limits":{"max_input_tokens":32000,"max_output_tokens":4000} }
+{
+  "project": "demo",
+  "model": "gpt-5-codex",
+  "endpoints": { "responses": "https://api.openai.com/v1/responses" },
+  "auth": { "api_key_env": "OPENAI_API_KEY" },
+  "limits": { "max_input_tokens": 32000, "max_output_tokens": 4000 },
+  "retrieval": { "index": "rag.yaml" }
+}

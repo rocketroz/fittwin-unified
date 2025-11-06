@@ -1,7 +1,6 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -10,9 +9,10 @@ import {
 } from 'typeorm';
 import { UserProfileEntity } from '../../profiles/entities/user-profile.entity';
 
-enum AddressType {
+export enum AddressType {
+  SHIPPING = 'shipping',
   BILLING = 'billing',
-  SHIPPING = 'shipping'
+  BOTH = 'both',
 }
 
 @Entity({ name: 'addresses' })
@@ -20,24 +20,27 @@ export class AddressEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => UserProfileEntity, (user) => user.addresses, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => UserProfileEntity, (user) => user.addresses, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user?: UserProfileEntity | null;
+  user!: UserProfileEntity;
 
-  @Column({ type: 'enum', enum: AddressType })
+  @Column({ name: 'type', type: 'enum', enum: AddressType })
   type!: AddressType;
 
-  @Column()
-  line1!: string;
+  @Column({ name: 'full_name' })
+  fullName!: string;
 
-  @Column({ nullable: true })
-  line2?: string | null;
+  @Column({ name: 'address_line1' })
+  addressLine1!: string;
+
+  @Column({ name: 'address_line2', nullable: true })
+  addressLine2?: string | null;
 
   @Column()
   city!: string;
 
-  @Column({ nullable: true })
-  state?: string | null;
+  @Column({ name: 'state_province' })
+  stateProvince!: string;
 
   @Column({ name: 'postal_code' })
   postalCode!: string;
@@ -45,17 +48,15 @@ export class AddressEntity {
   @Column()
   country!: string;
 
-  @Column({ type: 'jsonb', nullable: true })
-  metadata?: Record<string, unknown> | null;
+  @Column({ nullable: true })
+  phone?: string | null;
+
+  @Column({ name: 'is_default', default: false })
+  isDefault!: boolean;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz', nullable: true })
-  deletedAt?: Date | null;
 }
-
-export { AddressType };

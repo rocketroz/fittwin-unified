@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { OrderEntity } from './order.entity';
 import { ProductEntity } from '../../catalog/entities/product.entity';
 import { ProductVariantEntity } from '../../catalog/entities/product-variant.entity';
@@ -26,21 +20,30 @@ export class OrderItemEntity {
   @JoinColumn({ name: 'variant_id' })
   variant?: ProductVariantEntity | null;
 
-  @Column()
-  sku!: string;
+  @Column({ name: 'variant_sku' })
+  variantSku!: string;
+
+  @Column({ name: 'product_name' })
+  productName!: string;
 
   @Column({ name: 'size_label' })
   sizeLabel!: string;
 
-  @Column({ type: 'smallint' })
-  qty!: number;
+  @Column({ name: 'quantity', type: 'int' })
+  quantity!: number;
 
-  @Column({ name: 'unit_price_cents', type: 'bigint' })
+  @Column({ name: 'unit_price_cents', type: 'int' })
   unitPriceCents!: number;
 
   @Column({ length: 3 })
   currency!: string;
 
-  @Column({ name: 'fit_summary', type: 'jsonb', nullable: true })
-  fitSummary?: Record<string, unknown> | null;
+  @Column({ name: 'fit_confidence', type: 'int', nullable: true })
+  fitConfidence?: number | null;
+
+  @Column({ name: 'fit_notes', type: 'jsonb', nullable: true })
+  fitNotes?: Record<string, unknown> | null;
+
+  @Column({ name: 'created_at', type: 'timestamptz', default: () => 'NOW()' })
+  createdAt!: Date;
 }

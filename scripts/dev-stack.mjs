@@ -2,6 +2,8 @@
 import { spawn } from 'node:child_process';
 import process from 'node:process';
 
+const dbMode = (process.env.DATABASE_MODE ?? 'local').toLowerCase();
+
 const services = [
   {
     label: 'backend',
@@ -10,6 +12,7 @@ const services = [
     env: {
       PORT: process.env.BACKEND_PORT ?? '3000',
       HOST: '0.0.0.0',
+      DATABASE_MODE: process.env.DATABASE_MODE ?? 'local',
     },
   },
   {
@@ -74,7 +77,7 @@ function shutdown(exitCode = 0) {
 process.on('SIGINT', () => shutdown(0));
 process.on('SIGTERM', () => shutdown(0));
 
-console.log('[dev-stack] Starting FitTwin stack. Press Ctrl+C to stop.');
+console.log(`[dev-stack] Starting FitTwin stack (database mode: ${dbMode}). Press Ctrl+C to stop.`);
 for (const service of services) {
   runService(service);
 }

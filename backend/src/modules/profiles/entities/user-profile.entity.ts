@@ -13,6 +13,7 @@ import { PaymentMethodEntity } from '../../commerce/entities/payment-method.enti
 import { AddressEntity } from '../../common/entities/address.entity';
 import { OrderEntity } from '../../commerce/entities/order.entity';
 import { ReferralEntity } from '../../referrals/entities/referral.entity';
+import { CartEntity } from '../../commerce/entities/cart.entity';
 
 @Entity({ name: 'user_profiles' })
 export class UserProfileEntity {
@@ -74,6 +75,9 @@ export class UserProfileEntity {
 
   @OneToMany(() => ReferralEntity, (referral) => referral.referrer)
   referrals!: ReferralEntity[];
+
+  @OneToMany(() => CartEntity, (cart) => cart.user)
+  carts!: CartEntity[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

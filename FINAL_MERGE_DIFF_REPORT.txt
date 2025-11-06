@@ -1,0 +1,127 @@
+FINAL MERGE DIFF REPORT
+=======================
+
+All comparisons ignore build artefacts, caches, node_modules, virtualenvs, and binary assets. Counts reflect source files only.
+
+1. Unified backend (merge-crew-ai) → Distilled measurement backend
+   • Files compared: 29 vs 29; identical: 29; modified: 0.
+   • Interpretation: the FastAPI backend under `services/python/measurement/backend` matches the merge branch verbatim.
+
+2. Unified docs → Distilled docs (`docs/`)
+   • Files compared: 24 (source) vs 25 (distilled).
+   • Differences stem from restructuring/renaming into topical subfolders (e.g., `docs/ops/developer_setup.md` vs original `docs/DEVELOPER_SETUP.md`). Content was preserved but moved.
+
+3. Unified scripts → Distilled measurement scripts (`services/python/measurement/scripts`)
+   • Files compared: 5 vs 5; identical: 5.
+   • No divergence—dev server, agent runner, and test harness match upstream.
+
+4. Unified mobile iOS → Distilled mobile iOS (`mobile/ios`)
+   • Files compared: 31 (source) vs 22 (distilled). Identical: 15, modified: 7, source-only: 9.
+   • Missing pieces in the distilled tree: controller/utility Swift files (CameraSessionController.swift, FitTwinAPI.swift, etc.) and shared Xcode scheme. These should be imported if the full LiDAR workflow is required.
+   • Modified files correspond to project metadata and high-level SwiftUI views; expect to reconcile if we restore the missing controllers.
+
+5. CrewAI backend → Distilled measurement backend
+   • Files compared: 17 (source) vs 29 (distilled). Identical: 13, modified: 4, distilled-only: 12.
+   • The additional files are the commerce/auth/referral services ported from the unified branch. Modified files (`app/core/config.py`, `app/core/validation.py`, `app/main.py`, `app/routers/measurements.py`) carry the updated API surface—these need review if parity with the earlier CrewAI payloads is required.
+
+6. CrewAI agents → Distilled `ai/crewai`
+   • Files compared: 15 vs 15; identical: 15.
+   • Agent prompts, configs, and tools landed unchanged.
+
+7. CrewAI scripts → Distilled measurement scripts
+   • Files compared: 4 (source) vs 5 (distilled). Identical: 2, modified: 2 (`dev_server.sh`, `test_all.sh` include environment refinements), distilled-only: 1 (`log_codex_session.py`).
+
+8. CrewAI docs → Distilled docs
+   • Files compared: 12 vs 25. Differences mirror the renaming noted in section 2; CrewAI’s originals now live under the reorganised paths alongside additional unified materials.
+
+Repository delta snapshot (`git status --short`)
+------------------------------------------------
+M .codex/config.json
+ D .envrc
+ M .gitignore
+ D .npmrc
+ D .vscode/settings.json
+ M AGENTS.md
+ M README.md
+ M backend/package.json
+ M backend/src/modules/commerce/entities/order-item.entity.ts
+ M backend/src/modules/commerce/entities/order.entity.ts
+ M backend/src/modules/commerce/entities/payment-method.entity.ts
+ M backend/src/modules/common/entities/address.entity.ts
+ M backend/src/modules/profiles/entities/user-profile.entity.ts
+ M backend/src/modules/referrals/entities/referral-event.entity.ts
+ M backend/src/modules/referrals/entities/referral.entity.ts
+ D backend/src/modules/referrals/entities/reward-ledger-entry.entity.ts
+ M package-lock.json
+ M package.json
+ M progress.txt
+?? .githooks/
+?? ai/
+?? backend/SERVICE_PORTING.md
+?? backend/src/modules/commerce/entities/cart-item.entity.ts
+?? backend/src/modules/commerce/entities/cart.entity.ts
+?? backend/src/modules/commerce/entities/checkout-intent.entity.ts
+?? backend/src/modules/referrals/entities/referral-fraud-rule.entity.ts
+?? backend/src/modules/referrals/entities/referral-reward.entity.ts
+?? docs/
+?? mobile/
+?? scripts/log_codex_session.py
+?? scripts/test-full.sh
+?? services/
+?? supabase/
+(plus assorted utility files copied from source repos)
+
+`git diff --stat`
+-----------------
+Shows 19 tracked files touched so far (2,098 insertions / 1,368 deletions), chiefly the commerce/referral entities aligning to Supabase and documentation updates. The large `package-lock.json` churn reflects npm script additions.
+
+Follow-ups highlighted by the diff
+----------------------------------
+- Import the missing Swift capture controllers from the merge branch if native LiDAR capture must remain functional.
+- Review the four modified FastAPI files (`core/config.py`, `core/validation.py`, `main.py`, `routers/measurements.py`) to confirm expected payload/schema changes.
+- Decide whether the reorganised docs require back-links for the old filenames to keep historical references working.
+- Net-new TypeORM entities (`cart*.entity.ts`, `checkout-intent.entity.ts`, `referral-reward.entity.ts`, `referral-fraud-rule.entity.ts`) await wiring into Nest services/Repos; they currently represent schema parity only.
+
+
+
+
+• I’m preparing a final response that highlights the successful npm run test but failed npm run test:full due to a missing .venv. I want to clarify the plan progress: we improved tests but didn't implement the database module, so Step1 remains pending. I'll suggest updating the plan statuses to reflect this
+  accurately, marking the first step as blocked or TODO to keep things clear.
+
+• Updated Plan
+  └ Converted backend contract/integration placeholders into meaningful tests and achieved a clean npm run test (FastAPI suite still needs a .venv to run). Database refactor still outstanding.
+    □ Add DatabaseModule and configuration to support mock/local/supa TypeORM modes
+    □ Refactor commerce and referrals services/controllers to use repository interfaces with mock fallback
+    □ Seed baseline data and update tests (unit + integration) to exercise new flows
+    ✔ Run full test suite and ensure npm run test/test:full pass
+
+• Updated Plan
+  └ Node-side contract/integration tests now run green; FastAPI test harness still needs its virtualenv before npm run test:full can succeed.
+    □ Add DatabaseModule and configuration to support mock/local/supa TypeORM modes
+    □ Refactor commerce and referrals services/controllers to use repository interfaces with mock fallback
+    □ Seed baseline data and update tests (unit + integration) to exercise new flows
+    □ Run full test suite (Node + FastAPI) and ensure npm run test/test:full pass
+
+• Edited ~/TRI-MERGE_FITTWIN/fittwin-ns/progress.txt (+6 -0)
+    87  - Added measurement test harness (`services/python/measurement/scripts/test_all.sh`), logging hook, and updated `npm run test:full` to orchestrate the combined suite.
+    88 +
+    89 +Testing Migration (2025-11-06)
+    90 +-----------------------------
+    91 +- Replaced backend contract/integration placeholders with real assertions covering auth, try-on, profile, commerce, referrals, brand catalog, and end-to-end shopper flows.
+    92 +- Adopted `src/*` import aliases in tests to align with Jest moduleNameMapper and avoid rootDir issues.
+    93 +- Documented database mode usage across README/developer guides and ensured `npm run test` passes; `npm run test:full` now blocked only by missing FastAPI virtualenv.
+    94  Report: Final merge diff documented (2025-11-06 19:07:15Z).
+
+─ Worked for 25m 00s ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• - Reworked our placeholder backend specs into real coverage: every contract/integration test now spins up the existing in-memory services (auth, try-on, profile/avatar, commerce, referrals, brand catalog) and asserts the response contracts end-to-end.
+  - Updated all specs to lean on the src/... alias, added type guards where needed, and reset the store between runs so tests are deterministic.
+  - Tightened docs and tooling around the new database modes (local vs supa), refreshed docs/ops/developer_setup.md, README, supabase guide, and plan.md, and annotated the merge progress in progress.txt.
+  - Added turbo.json, .gitignore entries for Turborepo cache, and expanded the dev launcher so the backend advertises its current DATABASE_MODE.
+
+  Tests
+
+  - npm run test ✔️ (all workspace contract/integration suites green)
+  - npm run test:full ⚠️ fails at the FastAPI step because services/python/measurement/.venv hasn’t been created yet (script exits after trying to source the missing venv).
+
+  Create that virtualenv (or skip the FastAPI suite) and rerun npm run test:full when you want full-stack validation.

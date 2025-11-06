@@ -9,3 +9,37 @@ coverage/
 .env.*.local
 
 commandlinetools-mac-*.zip
+
+# Python virtual environments
+.venv/
+.venv-*/
+venv/
+
+# Python caches
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Coverage reports
+.coverage
+coverage.xml
+coverage/
+
+# Turborepo cache
+.turbo/
+backend/.turbo/
+
+# Agent-specific ignore rules
+.venv-agents/
+
+# IDE
+.vscode/
+
+# Environment files
+.env.test
+.env.*
+!agents/.env.example
+!.env.example
+!.env.test

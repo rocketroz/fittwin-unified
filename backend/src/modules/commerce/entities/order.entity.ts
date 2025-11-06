@@ -9,10 +9,11 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserProfileEntity } from '../../profiles/entities/user-profile.entity';
-import { AddressEntity } from '../../common/entities/address.entity';
 import { OrderItemEntity } from './order-item.entity';
 import { ReferralEntity } from '../../referrals/entities/referral.entity';
-import { RewardLedgerEntryEntity } from '../../referrals/entities/reward-ledger-entry.entity';
+import { ReferralRewardEntity } from '../../referrals/entities/referral-reward.entity';
+import { AddressEntity } from '../../common/entities/address.entity';
+import { PaymentMethodEntity } from './payment-method.entity';
 
 export enum OrderStatus {
   CREATED = 'created',
@@ -21,7 +22,8 @@ export enum OrderStatus {
   FULFILLED = 'fulfilled',
   DELIVERED = 'delivered',
   RETURN_REQUESTED = 'return_requested',
-  CLOSED = 'closed'
+  CLOSED = 'closed',
+  CANCELLED = 'cancelled',
 }
 
 @Entity({ name: 'orders' })
@@ -36,9 +38,6 @@ export class OrderEntity {
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.CREATED })
   status!: OrderStatus;
 
-  @Column({ type: 'jsonb' })
-  totals!: Record<string, unknown>;
-
   @ManyToOne(() => AddressEntity, { nullable: true })
   @JoinColumn({ name: 'shipping_address_id' })
   shippingAddress?: AddressEntity | null;
@@ -47,24 +46,43 @@ export class OrderEntity {
   @JoinColumn({ name: 'billing_address_id' })
   billingAddress?: AddressEntity | null;
 
+  @ManyToOne(() => PaymentMethodEntity, { nullable: true })
+  @JoinColumn({ name: 'payment_method_id' })
+  paymentMethod?: PaymentMethodEntity | null;
+
   @Column({ name: 'payment_intent_ref' })
   paymentIntentRef!: string;
 
-  @Column({ name: 'psp_token_id' })
-  pspTokenId!: string;
+  @Column({ name: 'subtotal_cents', type: 'int' })
+  subtotalCents!: number;
 
-  @ManyToOne(() => ReferralEntity, (referral) => referral.orders, { nullable: true })
-  @JoinColumn({ name: 'rid' })
+  @Column({ name: 'shipping_cents', type: 'int' })
+  shippingCents!: number;
+
+  @Column({ name: 'tax_cents', type: 'int' })
+  taxCents!: number;
+
+  @Column({ name: 'total_cents', type: 'int' })
+  totalCents!: number;
+
+  @Column({ default: 'USD' })
+  currency!: string;
+
+  @Column({ name: 'tracking_number', nullable: true })
+  trackingNumber?: string | null;
+
+  @ManyToOne(() => ReferralEntity, (referral) => referral.orders, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'referral_id' })
   referral?: ReferralEntity | null;
-
-  @Column({ type: 'jsonb', nullable: true })
-  notifications?: Record<string, unknown> | null;
 
   @OneToMany(() => OrderItemEntity, (item) => item.order, { cascade: true })
   items!: OrderItemEntity[];
 
-  @OneToMany(() => RewardLedgerEntryEntity, (entry) => entry.order)
-  rewardEntries!: RewardLedgerEntryEntity[];
+  @OneToMany(() => ReferralRewardEntity, (reward) => reward.order)
+  rewards!: ReferralRewardEntity[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

@@ -73,3 +73,22 @@ Open Tasks / Next Steps
 - Finish TUI improvements (interactive controls, restart actions, richer logging) per latest user guidance.
 - Continue implementing backend service logic, queue workers, and frontend flows to move MVP toward feature-complete state.
 
+Merge Prep (2025-11-06)
+-----------------------
+- Established unified scaffolding: added `services/python`, `ai/`, `supabase/`, `docs/`, and `mobile/` directories plus reference clients under `frontend/reference`.
+- Imported FastAPI measurement service, Supabase migrations (003–007), CrewAI agents, and related scripts/test harnesses.
+- Synced documentation from CrewAI/Manus/unified repos into `docs/` and updated README pointers, AGENTS directory context, and service porting checklist.
+- Added `npm run test:full` script to orchestrate Node, Python, and CrewAI test suites; recorded TypeORM↔Supabase mapping tasks.
+
+CrewAI Merge Branch Sync (2025-11-06)
+-------------------------------------
+- Pulled updates from `merge-crew-ai`: refreshed FastAPI backend, CrewAI scripts, `.env` templates, and Codex logging utilities.
+- Copied CrewAI merge diary (`docs/overview/crew_ai_merge.log`), architecture/roadmap/mobile guides, and new Codex session transcripts.
+- Added measurement test harness (`services/python/measurement/scripts/test_all.sh`), logging hook, and updated `npm run test:full` to orchestrate the combined suite.
+
+Testing Migration (2025-11-06)
+-----------------------------
+- Replaced backend contract/integration placeholders with real assertions covering auth, try-on, profile, commerce, referrals, brand catalog, and end-to-end shopper flows.
+- Adopted `src/*` import aliases in tests to align with Jest moduleNameMapper and avoid rootDir issues.
+- Documented database mode usage across README/developer guides and ensured `npm run test` passes; `npm run test:full` now blocked only by missing FastAPI virtualenv.
+Report: Final merge diff documented (2025-11-06 19:07:15Z).

@@ -1,0 +1,62 @@
+# CrewAI Merge Log
+
+## Merge Status (current session)
+- Pulled CrewAI assets into `merge-crew-ai`: env templates, CI workflows, docs, supabase configs, logs, screenshots, frontend bundles, and tests so no tracked file from `/Users/laura/fitwin-crewai` is missing.
+- Synced agent/back-end tooling: updated CrewAI README + tools with retry/circuit-breaker logic, added `run_agents_env.sh`, enforced `.venv-agents` + `OPENAI_API_KEY`, and expanded PYTHONPATH usage in dev/test scripts.
+- Maintained unified backend advances while adding CrewAI measurement data points (schema/validation/migration updates).
+- Restored the iOS LiDAR capture flow (CaptureFlow VM, API client, ATS override) within the FitTwin app.
+- Verified completeness via `git ls-tree -r -z` diff between the two repositories.
+
+## Next Steps (for Codex + local shell)
+1. **Stage & commit intentionally:** From the macOS terminal, stage the restored iOS capture stack, docs, scripts, env templates, and the Mediapipe pin (avoid staging `__pycache__` artifacts) then commit with a summary like `chore(merge): preserve CrewAI camera + align tooling`.
+2. **Rehydrate secrets before QA:** Update `backend/.env`, `agents/.env`, and iOS `Info.plist` overrides so device tests point at the correct backend and API keys.
+3. **Manual QA sweep:** Exercise both the legacy and CrewAI capture flows against `/api/v1/measurements/*` with the freshly installed Mediapipe on Python 3.11 to confirm end-to-end behavior.
+4. **PR prep:** Paste the latest `bash scripts/test_all.sh` output, mention Mediapipe 0.10.9 compatibility, and note lint status plus any large binary additions (screenshots) in `PR_DESCRIPTION.md`.
+
+## Expanded Notes
+- Environment & Config:
+  - Restored `.env.example` template from CrewAI and deduped `.env.test` entries.
+  - Added `.gitignore` patterns for venvs, coverage, macOS artifacts, and kept `.env.example`/`.env.test` tracked.
+  - Synced `.vscode/launch.json`, supabase config, and workflow files to keep IDE + CI parity.
+  - Pinned `mediapipe==0.10.9` so the universal2 wheel installs cleanly on Python 3.11 while leaving room for manual upgrades on newer runtimes.
+- Backend & Data:
+  - Measurement schemas now include CrewAI metadata plus positive validators; error envelopes reuse legacy notes for low-noise merges.
+  - Supabase migration tracks photo URLs + normalized payload RLS policies without creating duplicate tables.
+  - Added backend `requirements.txt` and package `__init__.py` for parity with CrewAI.
+- Agents & Tooling:
+  - `agents/tools/measurement_tools.py` now uses the CrewAI implementation with optional decorator fallback, retries, and circuit breakers.
+  - `scripts/run_agents.sh` enforces `.venv-agents` + `OPENAI_API_KEY`; `scripts/run_agents_env.sh` supports env-based launches; `scripts/test_all.sh`/`dev_server.sh` append `backend` to `PYTHONPATH`.
+- iOS LiDAR Flow:
+  - Capture workflow includes `CameraSessionController`, `CapturedPhoto`, LiDAR calculator, and `FitTwinAPI` client hitting `/measurements/validate` with photo data.
+  - Info.plist defines `FITWIN_API_*` keys and enables ATS exceptions for local dev.
+- Frontend & Assets:
+  - Copied `frontend/legacy_web_app` (Vite + shadcn UI) and `web-app/client` React bundle.
+  - Added `src/server` FastAPI stub, screenshots, screenshots_local, and doc PDFs/specs for historical context.
+
+- Verification: `rsync -an --exclude='.git/' /Users/laura/fitwin-crewai/ /Users/laura/Projects/fittwin-unified/` produced no output, confirming the working tree now mirrors CrewAI contents (minus `.git`).
+
+## 2025-11-03 - Merge follow-up
+- Completed full test run with `.env.test` overrides and the new Python 3.11 venv; `bash scripts/test_all.sh` now executes backend + agent suites successfully with linting gated by `RUN_LINT`.
+- Restored measurement endpoints under `/api/v1/measurements/*` plus legacy `/measurements/*` paths, standardized API key enforcement, and added response fields (`valid`, `measurements_cm`, `recommended_size`, `confidence`).
+- Cart API schema now mirrors CrewAI payloads (product_id/variant_id/quantity/size) and returns `cart_item_id` so pytest expectations match.
+- Agent measurement tools accept dict or kwargs payloads, expose both `recommend_size` and the `recommend_sizes` alias, and skip CrewAI imports in test mode via `DISABLE_CREWAI_IMPORTS`.
+- `.env.test` publishes API key + Supabase placeholders and sets `DISABLE_CREWAI_IMPORTS=1`, while `scripts/test_all.sh` sources it automatically and skips lint unless `RUN_LINT=1`.
+- Ran `bash scripts/test_all.sh`: backend tests (18) + agent tests (3) pass; black/flake skipped per new flag; coverage warnings remain for legacy agent stubs.
+
+## 2025-11-03 - Legacy preservation & test run
+- Restored the legacy iOS camera/LiDAR stack (CameraPreviewView, LiDAR managers, CaptureFlow *_Updated.swift files, MediaPipe MeasurementCalculator + PoseDetector) so the original capture code remains alongside the new flow during the merge.
+- FastAPI now mounts all routers under `/api/v1/*` while keeping `/measurements/*` for backward compatibility; measurement endpoints enforce the expected 401/403 split and return `valid`/`measurements_cm` plus `recommended_size`/`confidence`.
+- Cart router mirrors CrewAI payloads (`product_id`, `variant_id`, `quantity`, `size`) and responds with `cart_item_id`, matching backend tests.
+- `.env.test` loads API key + Supabase stubs + `DISABLE_CREWAI_IMPORTS=1`; `scripts/test_all.sh` sources it automatically, skips lint unless `RUN_LINT=1`, and extends `PYTHONPATH`.
+- CrewAI bootstrap/measurement crew files were rewritten so they’re valid Python modules, and measurement tools accept dicts/kwargs, expose `recommend_size`+alias, and avoid importing crewai when the env flag is set.
+- `bash scripts/test_all.sh` now passes end-to-end (backend + agent suites) using the new env defaults; lint remains opt-in, coverage still warns about placeholder crew files.
+- OPENAI_API_KEY remains stored only in GitHub Actions secrets for CI; local `.env` files intentionally omit it to avoid accidental leaks. Export it manually if/when agents need to run locally.
+- NOTE: git add/commit operations succeed locally, but Codex’s sandbox cannot create `.git/index.lock` (Operation not permitted), so staging and committing must be performed from the macOS terminal until that permission issue is resolved.
+
+## 2025-11-05 - Dev stack restart attempt
+- Terminated the lingering uvicorn pair (PIDs 67323/67326, later 84436/84439) and confirmed no backend listeners remained before relaunching.
+- `scripts/dev_server.sh` could not bind `0.0.0.0:8000` inside the sandbox (Operation not permitted), so the backend now runs via `nohup uvicorn backend.app.main:app --host 127.0.0.1 --port 8000` with `PYTHONPATH` exported; current parent/child PIDs are 84797/84800.
+- Startup still logs `Supabase client initialization failed: Client.__init__() got an unexpected keyword argument 'proxy'` plus `/dmaas/latest` 404s when agents probe the route; backend otherwise serves docs/health locally.
+- Recreated `.venv-agents` after discovering the prior run used Python 3.14 (which triggered a Rust/tiktoken wheel build). New env uses Python 3.11 and installs `crewai`, `openai`, `python-dotenv`, though the install spammed many dependencies (onnxruntime, uv, etc.).
+- `./scripts/run_agents_env.sh` now launches once `PYTHONPATH` includes the repo root, but it fails immediately because `.env` still exports the placeholder `OPENAI_API_KEY=your-openai-api-key`, so OpenAI returns 401 and the Crew output aborts before finishing.
+- Action items before the next attempt: (1) update `.env`/shell with a real `OPENAI_API_KEY`, (2) consider stubbing `/dmaas/latest` locally or pointing `FITWIN_API_URL` at an environment that serves it, and (3) investigate the Supabase proxy kwarg warning during backend startup.

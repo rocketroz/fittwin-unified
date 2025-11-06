@@ -9,7 +9,12 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserProfileEntity } from '../../profiles/entities/user-profile.entity';
-import { AddressEntity } from '../../common/entities/address.entity';
+
+export enum PaymentMethodType {
+  CARD = 'card',
+  BANK_ACCOUNT = 'bank_account',
+  OTHER = 'other',
+}
 
 @Entity({ name: 'payment_methods' })
 export class PaymentMethodEntity {
@@ -23,8 +28,14 @@ export class PaymentMethodEntity {
   @OneToMany(() => UserProfileEntity, (user) => user.defaultPaymentMethod)
   defaultProfiles!: UserProfileEntity[];
 
-  @Column({ name: 'psp_token_id' })
-  pspTokenId!: string;
+  @Column({ default: 'stripe' })
+  provider!: string;
+
+  @Column({ name: 'provider_payment_method_id' })
+  providerPaymentMethodId!: string;
+
+  @Column({ type: 'enum', enum: PaymentMethodType })
+  type!: PaymentMethodType;
 
   @Column({ nullable: true })
   brand?: string | null;
@@ -32,12 +43,14 @@ export class PaymentMethodEntity {
   @Column({ nullable: true, length: 4 })
   last4?: string | null;
 
-  @Column({ name: 'expires_at', type: 'date', nullable: true })
-  expiresAt?: Date | null;
+  @Column({ name: 'exp_month', type: 'int', nullable: true })
+  expMonth?: number | null;
 
-  @ManyToOne(() => AddressEntity, { nullable: true })
-  @JoinColumn({ name: 'billing_address_id' })
-  billingAddress?: AddressEntity | null;
+  @Column({ name: 'exp_year', type: 'int', nullable: true })
+  expYear?: number | null;
+
+  @Column({ name: 'is_default', default: false })
+  isDefault!: boolean;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
