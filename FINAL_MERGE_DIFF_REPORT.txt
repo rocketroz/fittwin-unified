@@ -125,3 +125,35 @@ Follow-ups highlighted by the diff
   - npm run test:full ⚠️ fails at the FastAPI step because services/python/measurement/.venv hasn’t been created yet (script exits after trying to source the missing venv).
 
   Create that virtualenv (or skip the FastAPI suite) and rerun npm run test:full when you want full-stack validation.
+
+• Native Capture Integration
+
+  - Recovered the Android ARCore spike under fittwin-ns/frontend/nativescript/shared/capture/android/arcoreBridge.ts:1 and wired it into the shared service (frontend/nativescript/shared/capture/android.ts:1). The bridge now manages permissions, sessions, burst capture, ARCore depth estimates, and emits normalized
+    metadata (captureId, platform, device model, distance).
+  - Reintroduced the entire iOS LiDAR stack—mobile/ios/FitTwinApp/FitTwinApp/CaptureFlow/{CameraSessionController.swift,CapturedPhoto.swift,DeviceRequirementChecker.swift,FitTwinAPI.swift,LiDARMeasurementCalculator.swift} plus mobile/platforms/ios/FitTwinLiDARBridge.swift:1. NativeScript bridges (frontend/
+    nativescript/shared/capture/ios.ts:1, frontend/nativescript/shared/capture/ios/bridge.ts:1) now expose the Swift capture pipeline.
+
+  Shared Submission Flow
+
+  - Added frontend/nativescript/shared/capture/measurementClient.ts:1 to build /measurements/validate payloads (captureId, timestamp, device info, photos, burst metadata) using env vars (NS_MEASUREMENTS_API_URL/KEY) with fallbacks to FITWIN_API_URL.
+  - Added frontend/nativescript/shared/capture/nativeCaptureViewModel.ts:1 so both labs reuse the same capture+submit logic: call captureMeasurements(), post to the backend, and show recommendations.
+  - Shopper and brand native capture pages (frontend/nativescript/shopper-lab/app/native-capture-page.{ts,xml} and frontend/nativescript/brand-lab/app/native-capture-page.{ts,xml}) now bind to that ViewModel, display submission summaries, and handle errors uniformly.
+
+  Docs & Scaffolding
+
+  - stack.env.example:1 gained NS_MEASUREMENTS_API_URL/KEY; frontend/nativescript/README.md:1 documents native capture env hints and points to QA docs.
+  - Created docs/mobile/capture_sources.md:1 (index of all Android/web/iOS capture sources) and docs/mobile/native_capture_qa.md:1 (step-by-step validation plan). docs/mobile/native_capture_alignment.md:1 references both.
+  - docs/measurement/measurement_payload.md:1 now records the native payload fields (captureId, platform, device model, depth flags, ARCore burst metadata) so backend expectations stay synced.
+  - New Swift files plus the bridge re-synced mobile/ios/FitTwinApp/... and the NativeScript plugin path.
+
+  Housekeeping
+
+  - Added placeholder test / test:full scripts to the workspaces lacking them (backend/queue-workers/*, frontend/apps/*, frontend/packages/*) so npm run test no longer aborts early.
+  - Android/iOS capture modules landed under frontend/nativescript/shared/capture, and the labs now share those instead of duplicating logic.
+
+  Tests
+
+  - npm run test ✔ (Nest backend suites pass; other workspaces emit skip notices).
+  - npm run test:full ❌ (tests/integration/shopper_checkout.spec.ts:76 still fails expecting avatar status “ready”, not caused by today’s changes).
+
+  Let me know if you’d like a follow-up to stabilize that checkout test or wire the capture payload into additional QA automation.

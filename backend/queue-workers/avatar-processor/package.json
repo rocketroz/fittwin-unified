@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "echo \"(skip) no avatar processor tests yet\"",
+    "test:full": "npm run test"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.600.0",

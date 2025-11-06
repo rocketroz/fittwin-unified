@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "echo \"(skip) shopper web has no unit tests yet\"",
+    "test:full": "npm run test"
   },
   "dependencies": {
     "@fittwin/api-client": "file:../../packages/api-client",

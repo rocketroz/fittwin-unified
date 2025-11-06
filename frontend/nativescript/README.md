@@ -27,6 +27,7 @@ webpack.config.js    # wires env vars into the bundle
 2. Set up platform tooling (Xcode+CocoaPods for iOS, Android SDK/NDK for Android).
 3. Ensure the web stack is running (`node scripts/dev-stack.mjs`) so the WebView can reach the lab pages.
 4. Export the desired URLs through `NS_LAB_URL` / `NS_BRAND_URL` or edit them in-app.
+5. (Optional) Set `NS_MEASUREMENTS_API_URL` and `NS_MEASUREMENTS_API_KEY` so the native capture preview can submit payloads to the FastAPI measurement service.
 
 ## Commands
 
@@ -41,6 +42,11 @@ npm run ns:brand:android
 ```
 
 Use these shells to validate navigation, deep links, and native packaging, then progressively replace the WebView with real NativeScript AR components.
+
+### Native capture QA
+
+- The shared capture service (`frontend/nativescript/shared/capture/*`) unifies the Android ARCore spike and the Swift LiDAR plugin. See `docs/mobile/capture_sources.md` for the source-of-truth reference across repos.
+- Follow `docs/mobile/native_capture_qa.md` to run the measurement service locally, configure API keys, and verify that the shopper/brand labs can capture, submit, and display backend responses.
 
 ### Android specifics
 

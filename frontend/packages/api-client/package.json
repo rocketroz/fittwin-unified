@@ -8,7 +8,9 @@
     "mapscii": "^0.3.1"
   },
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "echo \"(skip) API client tests not yet implemented\"",
+    "test:full": "npm run test"
   },
   "devDependencies": {
     "@types/node": "^24.5.2",

@@ -1,4 +1,10 @@
-import { Application, Frame } from '@nativescript/core';
+import { Application, Frame, isIOS } from '@nativescript/core';
+
+if (isIOS) {
+  require('../../shared/capture/ios');
+} else {
+  require('../../shared/capture/android');
+}
 
 Application.setCssFileName('app.css');
 Application.run({

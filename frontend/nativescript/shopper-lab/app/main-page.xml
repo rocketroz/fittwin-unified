@@ -2,8 +2,9 @@
   <ActionBar title="FitTwin AR Lab" class="action-bar" />
   <GridLayout rows="auto,auto,*" padding="16" rowSpacing="12">
     <StackLayout row="0" class="input-bar" orientation="horizontal" verticalAlignment="middle" spacing="8">
-      <TextField id="labUrlEntry" text="{{ labUrl }}" hint="Lab URL" width="70%" />
+      <TextField id="labUrlEntry" text="{{ labUrl }}" hint="Lab URL" width="60%" />
       <Button text="Load" tap="onSubmitUrl" class="btn btn-primary" />
+      <Button text="Native Capture" tap="onLaunchCapture" class="btn btn-outline" />
     </StackLayout>
     <Label row="1" text="{{ statusMessage }}" class="status-label" textWrap="true" visibility="{{ statusMessage ? 'visible' : 'collapse' }}" />
     <WebView id="labWebView" row="2" src="{{ labUrl }}" />

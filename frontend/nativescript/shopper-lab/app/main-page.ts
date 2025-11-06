@@ -1,4 +1,4 @@
-import { Observable, EventData, Page, WebView, ApplicationSettings, isAndroid } from '@nativescript/core';
+import { Observable, EventData, Page, WebView, ApplicationSettings, isAndroid, Frame } from '@nativescript/core';
 import { LoadEventData } from '@nativescript/core/ui/web-view';
 
 declare const android: any;
@@ -48,6 +48,13 @@ export function onSubmitUrl(args: EventData) {
       webView.stopLoading();
       webView.src = url;
     }
+  }
+}
+
+export function onLaunchCapture(args: EventData) {
+  const frame = Frame.topmost();
+  if (frame) {
+    frame.navigate('native-capture-page');
   }
 }
 

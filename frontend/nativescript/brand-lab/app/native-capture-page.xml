@@ -1,0 +1,9 @@
+<Page navigatingTo="navigatingTo" class="page">
+  <ActionBar title="Native Capture" class="action-bar" />
+  <StackLayout padding="16" spacing="16">
+    <Label text="Trigger the platform-native capture flow for brand QA. Real measurements will surface once the plugins are wired in." textWrap="true" />
+    <Button text="Start Capture" tap="onStartCapture" class="btn btn-primary" />
+    <Label text="{{ status }}" textWrap="true" class="status-label" />
+    <Label text="{{ submissionSummary }}" textWrap="true" class="status-label" />
+  </StackLayout>
+</Page>
