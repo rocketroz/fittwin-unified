@@ -37,6 +37,11 @@ backend/.turbo/
 # IDE
 .vscode/
 
+# Local artifacts
+screenshots_local/
+tmp-postgres/
+services/python/measurement/*.log
+
 # Environment files
 .env.test
 .env.*
