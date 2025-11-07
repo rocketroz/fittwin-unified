@@ -1,4 +1,4 @@
-const PROXY_BASE = process.env.NEXT_PUBLIC_API_PROXY_BASE ?? '/api';
+const PROXY_BASE = process.env.NEXT_PUBLIC_API_PROXY_BASE ?? '/api/backend';
 
 interface RequestOptions {
   accessToken?: string;
