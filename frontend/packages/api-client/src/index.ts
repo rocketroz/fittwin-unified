@@ -1,4 +1,12 @@
+const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
 const PROXY_BASE = process.env.NEXT_PUBLIC_API_PROXY_BASE ?? '/api/backend';
+
+const buildUrl = (path: string) => {
+  if (BACKEND_BASE) {
+    return `${BACKEND_BASE}${path}`;
+  }
+  return `${PROXY_BASE}${path}`;
+};
 
 interface RequestOptions {
   accessToken?: string;
@@ -18,7 +26,7 @@ async function request<T = unknown>(path: string, options: RequestOptions = {}):
     headers.set('authorization', `Bearer ${accessToken}`);
   }
 
-  const response = await fetch(`${PROXY_BASE}${path}`, {
+  const response = await fetch(buildUrl(path), {
     ...init,
     headers,
     cache: 'no-store',

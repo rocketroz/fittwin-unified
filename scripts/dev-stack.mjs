@@ -22,6 +22,7 @@ const services = [
     env: {
       PORT: process.env.SHOPPER_PORT ?? '3001',
       BACKEND_BASE_URL: `http://localhost:${process.env.BACKEND_PORT ?? '3000'}`,
+      NEXT_PUBLIC_BACKEND_BASE_URL: `http://localhost:${process.env.BACKEND_PORT ?? '3000'}`,
       NEXT_PUBLIC_API_PROXY_BASE: process.env.NEXT_PUBLIC_API_PROXY_BASE ?? '/api/backend',
       E2E_SHOPPER_URL: `http://localhost:${process.env.SHOPPER_PORT ?? '3001'}`,
     },
@@ -33,6 +34,7 @@ const services = [
     env: {
       PORT: process.env.BRAND_PORT ?? '3100',
       BACKEND_BASE_URL: `http://localhost:${process.env.BACKEND_PORT ?? '3000'}`,
+      NEXT_PUBLIC_BACKEND_BASE_URL: `http://localhost:${process.env.BACKEND_PORT ?? '3000'}`,
       NEXT_PUBLIC_API_PROXY_BASE: process.env.NEXT_PUBLIC_API_PROXY_BASE ?? '/api/backend',
       E2E_BRAND_URL: `http://localhost:${process.env.BRAND_PORT ?? '3100'}`,
     },
