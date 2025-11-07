@@ -25,7 +25,8 @@
     "ns:shopper:android": "cd frontend/nativescript/shopper-lab && ns run android --no-hmr --env.skipInstall",
     "ns:shopper:ios": "cd frontend/nativescript/shopper-lab && ns run ios --no-hmr --env.skipInstall",
     "ns:brand:android": "cd frontend/nativescript/brand-lab && ns run android --no-hmr --env.skipInstall",
-    "ns:brand:ios": "cd frontend/nativescript/brand-lab && ns run ios --no-hmr --env.skipInstall"
+    "ns:brand:ios": "cd frontend/nativescript/brand-lab && ns run ios --no-hmr --env.skipInstall",
+    "backend:dev": "cd backend && npm run start:dev"
   },
   "devDependencies": {
     "@playwright/test": "^1.45.0",
@@ -36,7 +37,8 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.8",
     "prettier": "^3.3.3",
-    "turbo": "^2.0.6"
+    "turbo": "^2.0.6",
+    "nodemon": "^3.1.0"
   },
   "dependencies": {
     "shell": "^0.12.0"

@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
+import path from 'node:path';
 import process from 'node:process';
+import url from 'node:url';
 
 const dbMode = (process.env.DATABASE_MODE ?? 'local').toLowerCase();
+const scriptDir = path.dirname(url.fileURLToPath(import.meta.url));
+const rootDir = path.resolve(scriptDir, '..');
 
 const services = [
   {
     label: 'backend',
-    command: 'npm',
-    args: ['run', 'start:dev', '--workspace', 'backend'],
+    command: 'npx',
+    args: ['nodemon', '--watch', 'backend/src', '--ext', 'ts,js,json', '--exec', 'npm run backend:dev'],
     env: {
       PORT: process.env.BACKEND_PORT ?? '3000',
       HOST: '0.0.0.0',
