@@ -107,6 +107,30 @@ The Nest backend now supports two Postgres targets:
 ## iOS ##
  Laura Tornga device name: Laura Tornga’s iPhone (18.6.2) with UDID 00008140-000C75D61E82801C.
 
+### NGROK during iOS testing / development
+
+Keep the iOS prototype pointed at your tunneled backend by running these side-by-side terminals:
+
+**Terminal 1 – Start the FastAPI backend**
+
+```bash
+cd services/python/measurement/backend
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+**Terminal 2 – Expose the backend via ngrok**
+
+```bash
+ngrok http 8000
+```
+
+Once ngrok is up, you can:
+
+- Test on a physical iPhone over Wi-Fi or cellular (update `FITWIN_API_URL` in `Info.plist` with the HTTPS tunnel).
+- Inspect requests in the ngrok web UI for quick debugging.
+- Share the tunnel URL with teammates who need temporary access.
+- Exercise the capture flow from multiple devices without reconfiguring your network.
+
 Run these from the repo root after the web stack is live:
 
 ```bash

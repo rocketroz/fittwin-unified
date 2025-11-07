@@ -21,6 +21,7 @@
 	<key>FITWIN_API_KEY</key>
 	<string>staging-secret-key</string>
 	<key>FITWIN_API_URL</key>
+	<!-- Edit app’s Info.plist to set FITWIN_API_URL = http://192.168.4.208:8000 -->
 	<string>http://127.0.0.1:8000</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
