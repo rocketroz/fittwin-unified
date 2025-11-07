@@ -3,6 +3,10 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SERVICE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SERVICE_ROOT/../../.." && pwd)"
+
 echo "🧪 Running FitTwin Platform Tests..."
 
 # Activate virtual environment if available
@@ -27,7 +31,7 @@ if [ -f ".env.test" ]; then
 fi
 
 # Set PYTHONPATH
-export PYTHONPATH="${PYTHONPATH}:$(pwd):$(pwd)/backend"
+export PYTHONPATH="${PYTHONPATH}:${SERVICE_ROOT}:${SERVICE_ROOT}/backend:${REPO_ROOT}:${REPO_ROOT}/agents"
 
 # Run backend tests
 echo ""

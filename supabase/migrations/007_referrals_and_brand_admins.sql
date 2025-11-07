@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS referrals (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   rid TEXT NOT NULL UNIQUE,
-  referrer_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  referrer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   active BOOLEAN DEFAULT TRUE,
   total_clicks INTEGER DEFAULT 0,
   total_signups INTEGER DEFAULT 0,
@@ -50,12 +50,6 @@ CREATE TABLE IF NOT EXISTS brand_admins (
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS idx_referrals_rid ON referrals(rid);
-CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_user_id);
-CREATE INDEX IF NOT EXISTS idx_referral_events_rid ON referral_events(rid);
-CREATE INDEX IF NOT EXISTS idx_referral_events_user ON referral_events(user_id);
-CREATE INDEX IF NOT EXISTS idx_referral_events_order ON referral_events(order_id);
-CREATE INDEX IF NOT EXISTS idx_referral_rewards_user ON referral_rewards(user_id);
 CREATE INDEX IF NOT EXISTS idx_brand_admins_brand ON brand_admins(brand_id);
 CREATE INDEX IF NOT EXISTS idx_brand_admins_user ON brand_admins(user_id);
 
@@ -90,22 +84,8 @@ ALTER TABLE referral_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE referral_rewards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE brand_admins ENABLE ROW LEVEL SECURITY;
 
--- Users can view their own referrals
-CREATE POLICY "Users can view their own referrals"
-  ON referrals FOR SELECT
-  USING (auth.uid() = referrer_user_id);
-
--- Users can create referrals
-CREATE POLICY "Users can create referrals"
-  ON referrals FOR INSERT
-  WITH CHECK (auth.uid() = referrer_user_id);
-
--- Users can view their own referral rewards
-CREATE POLICY "Users can view their own referral rewards"
-  ON referral_rewards FOR SELECT
-  USING (auth.uid() = user_id);
-
 -- Brand admins can view their brand
+DROP POLICY IF EXISTS "Brand admins can view their brand association" ON brand_admins;
 CREATE POLICY "Brand admins can view their brand association"
   ON brand_admins FOR SELECT
   USING (auth.uid() = user_id);

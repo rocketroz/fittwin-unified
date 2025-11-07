@@ -19,10 +19,10 @@ CREATE TABLE IF NOT EXISTS referrals (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_referrals_rid ON referrals(rid);
-CREATE INDEX idx_referrals_referrer_id ON referrals(referrer_id);
-CREATE INDEX idx_referrals_status ON referrals(status);
-CREATE INDEX idx_referrals_created_at ON referrals(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_referrals_rid ON referrals(rid);
+CREATE INDEX IF NOT EXISTS idx_referrals_referrer_id ON referrals(referrer_id);
+CREATE INDEX IF NOT EXISTS idx_referrals_status ON referrals(status);
+CREATE INDEX IF NOT EXISTS idx_referrals_created_at ON referrals(created_at DESC);
 
 -- ============================================================================
 -- REFERRAL EVENTS
@@ -40,12 +40,12 @@ CREATE TABLE IF NOT EXISTS referral_events (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_referral_events_referral_id ON referral_events(referral_id);
-CREATE INDEX idx_referral_events_event_type ON referral_events(event_type);
-CREATE INDEX idx_referral_events_user_id ON referral_events(user_id);
-CREATE INDEX idx_referral_events_order_id ON referral_events(order_id);
-CREATE INDEX idx_referral_events_attributed ON referral_events(attributed);
-CREATE INDEX idx_referral_events_created_at ON referral_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_referral_events_referral_id ON referral_events(referral_id);
+CREATE INDEX IF NOT EXISTS idx_referral_events_event_type ON referral_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_referral_events_user_id ON referral_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_referral_events_order_id ON referral_events(order_id);
+CREATE INDEX IF NOT EXISTS idx_referral_events_attributed ON referral_events(attributed);
+CREATE INDEX IF NOT EXISTS idx_referral_events_created_at ON referral_events(created_at DESC);
 
 -- ============================================================================
 -- REFERRAL REWARDS
@@ -66,11 +66,11 @@ CREATE TABLE IF NOT EXISTS referral_rewards (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_referral_rewards_referral_id ON referral_rewards(referral_id);
-CREATE INDEX idx_referral_rewards_referrer_id ON referral_rewards(referrer_id);
-CREATE INDEX idx_referral_rewards_order_id ON referral_rewards(order_id);
-CREATE INDEX idx_referral_rewards_status ON referral_rewards(status);
-CREATE INDEX idx_referral_rewards_created_at ON referral_rewards(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_referral_rewards_referral_id ON referral_rewards(referral_id);
+CREATE INDEX IF NOT EXISTS idx_referral_rewards_referrer_id ON referral_rewards(referrer_id);
+CREATE INDEX IF NOT EXISTS idx_referral_rewards_order_id ON referral_rewards(order_id);
+CREATE INDEX IF NOT EXISTS idx_referral_rewards_status ON referral_rewards(status);
+CREATE INDEX IF NOT EXISTS idx_referral_rewards_created_at ON referral_rewards(created_at DESC);
 
 -- ============================================================================
 -- REFERRAL FRAUD RULES
@@ -86,13 +86,14 @@ CREATE TABLE IF NOT EXISTS referral_fraud_rules (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_referral_fraud_rules_enabled ON referral_fraud_rules(enabled);
+CREATE INDEX IF NOT EXISTS idx_referral_fraud_rules_enabled ON referral_fraud_rules(enabled);
 
 -- ============================================================================
 -- Add foreign key to orders table for referral tracking
 -- ============================================================================
 
 ALTER TABLE orders
+    DROP CONSTRAINT IF EXISTS fk_orders_referral,
     ADD CONSTRAINT fk_orders_referral
     FOREIGN KEY (referral_id) REFERENCES referrals(id) ON DELETE SET NULL;
 
@@ -107,24 +108,29 @@ ALTER TABLE referral_rewards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE referral_fraud_rules ENABLE ROW LEVEL SECURITY;
 
 -- Referrals: Users can view and manage their own referrals
+DROP POLICY IF EXISTS "Users can view their own referrals" ON referrals;
 CREATE POLICY "Users can view their own referrals"
     ON referrals FOR SELECT
     USING (auth.uid() = referrer_id);
 
+DROP POLICY IF EXISTS "Users can insert their own referrals" ON referrals;
 CREATE POLICY "Users can insert their own referrals"
     ON referrals FOR INSERT
     WITH CHECK (auth.uid() = referrer_id);
 
+DROP POLICY IF EXISTS "Users can update their own referrals" ON referrals;
 CREATE POLICY "Users can update their own referrals"
     ON referrals FOR UPDATE
     USING (auth.uid() = referrer_id);
 
 -- Referral Events: Users can view events for their referrals
+DROP POLICY IF EXISTS "Users can view events for their referrals" ON referral_events;
 CREATE POLICY "Users can view events for their referrals"
     ON referral_events FOR SELECT
     USING (referral_id IN (SELECT id FROM referrals WHERE referrer_id = auth.uid()));
 
 -- Referral Rewards: Users can view their own rewards
+DROP POLICY IF EXISTS "Users can view their own rewards" ON referral_rewards;
 CREATE POLICY "Users can view their own rewards"
     ON referral_rewards FOR SELECT
     USING (auth.uid() = referrer_id OR auth.uid() = referee_id);
@@ -137,16 +143,19 @@ CREATE POLICY "Users can view their own rewards"
 -- ============================================================================
 
 -- Triggers for updated_at
+DROP TRIGGER IF EXISTS update_referrals_updated_at ON referrals;
 CREATE TRIGGER update_referrals_updated_at
     BEFORE UPDATE ON referrals
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_referral_rewards_updated_at ON referral_rewards;
 CREATE TRIGGER update_referral_rewards_updated_at
     BEFORE UPDATE ON referral_rewards
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_referral_fraud_rules_updated_at ON referral_fraud_rules;
 CREATE TRIGGER update_referral_fraud_rules_updated_at
     BEFORE UPDATE ON referral_fraud_rules
     FOR EACH ROW

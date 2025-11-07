@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS carts (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_carts_user_id ON carts(user_id);
+CREATE INDEX IF NOT EXISTS idx_carts_user_id ON carts(user_id);
 
 -- ============================================================================
 -- CART ITEMS
@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS cart_items (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
-CREATE INDEX idx_cart_items_product_id ON cart_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_cart_items_cart_id ON cart_items(cart_id);
+CREATE INDEX IF NOT EXISTS idx_cart_items_product_id ON cart_items(product_id);
 
 -- ============================================================================
 -- ADDRESSES
@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS addresses (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_addresses_user_id ON addresses(user_id);
-CREATE INDEX idx_addresses_user_default ON addresses(user_id, is_default);
+CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id);
+CREATE INDEX IF NOT EXISTS idx_addresses_user_default ON addresses(user_id, is_default);
 
 -- ============================================================================
 -- PAYMENT METHODS
@@ -80,8 +80,8 @@ CREATE TABLE IF NOT EXISTS payment_methods (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_payment_methods_user_id ON payment_methods(user_id);
-CREATE INDEX idx_payment_methods_user_default ON payment_methods(user_id, is_default);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_user_id ON payment_methods(user_id);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_user_default ON payment_methods(user_id, is_default);
 
 -- ============================================================================
 -- ORDERS
@@ -115,10 +115,10 @@ CREATE TABLE IF NOT EXISTS orders (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_orders_user_id ON orders(user_id);
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_created_at ON orders(created_at DESC);
-CREATE INDEX idx_orders_referral_id ON orders(referral_id);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_referral_id ON orders(referral_id);
 
 -- ============================================================================
 -- ORDER ITEMS
@@ -140,8 +140,8 @@ CREATE TABLE IF NOT EXISTS order_items (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_order_items_order_id ON order_items(order_id);
-CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);
 
 -- ============================================================================
 -- CHECKOUT INTENTS (for idempotency)
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS checkout_intents (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_checkout_intents_order_id ON checkout_intents(order_id);
+CREATE INDEX IF NOT EXISTS idx_checkout_intents_order_id ON checkout_intents(order_id);
 
 -- ============================================================================
 -- ROW-LEVEL SECURITY (RLS) POLICIES
@@ -171,87 +171,107 @@ ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE checkout_intents ENABLE ROW LEVEL SECURITY;
 
 -- Carts: Users can only access their own carts
+DROP POLICY IF EXISTS "Users can view their own carts" ON carts;
 CREATE POLICY "Users can view their own carts"
     ON carts FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own carts" ON carts;
 CREATE POLICY "Users can insert their own carts"
     ON carts FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own carts" ON carts;
 CREATE POLICY "Users can update their own carts"
     ON carts FOR UPDATE
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own carts" ON carts;
 CREATE POLICY "Users can delete their own carts"
     ON carts FOR DELETE
     USING (auth.uid() = user_id);
 
 -- Cart Items: Users can only access items in their own carts
+DROP POLICY IF EXISTS "Users can view their own cart items" ON cart_items;
 CREATE POLICY "Users can view their own cart items"
     ON cart_items FOR SELECT
     USING (cart_id IN (SELECT id FROM carts WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Users can insert their own cart items" ON cart_items;
 CREATE POLICY "Users can insert their own cart items"
     ON cart_items FOR INSERT
     WITH CHECK (cart_id IN (SELECT id FROM carts WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Users can update their own cart items" ON cart_items;
 CREATE POLICY "Users can update their own cart items"
     ON cart_items FOR UPDATE
     USING (cart_id IN (SELECT id FROM carts WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Users can delete their own cart items" ON cart_items;
 CREATE POLICY "Users can delete their own cart items"
     ON cart_items FOR DELETE
     USING (cart_id IN (SELECT id FROM carts WHERE user_id = auth.uid()));
 
 -- Addresses: Users can only access their own addresses
+DROP POLICY IF EXISTS "Users can view their own addresses" ON addresses;
 CREATE POLICY "Users can view their own addresses"
     ON addresses FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own addresses" ON addresses;
 CREATE POLICY "Users can insert their own addresses"
     ON addresses FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own addresses" ON addresses;
 CREATE POLICY "Users can update their own addresses"
     ON addresses FOR UPDATE
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own addresses" ON addresses;
 CREATE POLICY "Users can delete their own addresses"
     ON addresses FOR DELETE
     USING (auth.uid() = user_id);
 
 -- Payment Methods: Users can only access their own payment methods
+DROP POLICY IF EXISTS "Users can view their own payment methods" ON payment_methods;
 CREATE POLICY "Users can view their own payment methods"
     ON payment_methods FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own payment methods" ON payment_methods;
 CREATE POLICY "Users can insert their own payment methods"
     ON payment_methods FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own payment methods" ON payment_methods;
 CREATE POLICY "Users can update their own payment methods"
     ON payment_methods FOR UPDATE
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own payment methods" ON payment_methods;
 CREATE POLICY "Users can delete their own payment methods"
     ON payment_methods FOR DELETE
     USING (auth.uid() = user_id);
 
 -- Orders: Users can only access their own orders
+DROP POLICY IF EXISTS "Users can view their own orders" ON orders;
 CREATE POLICY "Users can view their own orders"
     ON orders FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own orders" ON orders;
 CREATE POLICY "Users can insert their own orders"
     ON orders FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own orders" ON orders;
 CREATE POLICY "Users can update their own orders"
     ON orders FOR UPDATE
     USING (auth.uid() = user_id);
 
 -- Order Items: Users can only access items in their own orders
+DROP POLICY IF EXISTS "Users can view their own order items" ON order_items;
 CREATE POLICY "Users can view their own order items"
     ON order_items FOR SELECT
     USING (order_id IN (SELECT id FROM orders WHERE user_id = auth.uid()));
@@ -273,26 +293,31 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Triggers for updated_at
+DROP TRIGGER IF EXISTS update_carts_updated_at ON carts;
 CREATE TRIGGER update_carts_updated_at
     BEFORE UPDATE ON carts
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_cart_items_updated_at ON cart_items;
 CREATE TRIGGER update_cart_items_updated_at
     BEFORE UPDATE ON cart_items
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_addresses_updated_at ON addresses;
 CREATE TRIGGER update_addresses_updated_at
     BEFORE UPDATE ON addresses
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_payment_methods_updated_at ON payment_methods;
 CREATE TRIGGER update_payment_methods_updated_at
     BEFORE UPDATE ON payment_methods
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
 CREATE TRIGGER update_orders_updated_at
     BEFORE UPDATE ON orders
     FOR EACH ROW

@@ -6,10 +6,15 @@ final class CaptureFlowViewModel: ObservableObject {
     @Published var alertMessage: String?
 
     private let permissionManager = CameraPermissionManager()
-    
-    // ✅ ADD THIS: Backend API configuration
-    private let apiBaseURL = "http://192.168.4.208:8000"
-    private let apiKey = "7c4b71191d6026973900ac353d6d68ac5977836cc85710a04ccf3ba147db301e"
+    private let apiBaseURL: URL
+    private let apiKey: String
+
+    init() {
+        let bundle = Bundle.main
+        let urlString = bundle.object(forInfoDictionaryKey: "FITWIN_API_URL") as? String ?? "http://127.0.0.1:8000"
+        apiBaseURL = URL(string: urlString)?.appendingPathComponent("measurements/validate") ?? URL(string: "http://127.0.0.1:8000/measurements/validate")!
+        apiKey = bundle.object(forInfoDictionaryKey: "FITWIN_API_KEY") as? String ?? "staging-secret-key"
+    }
 
     func startFlow( ) {
         Task {
@@ -52,9 +57,8 @@ final class CaptureFlowViewModel: ObservableObject {
 
     // ✅ UPDATED: Real backend API call
     private func processMeasurements() async {
-        print("🔵 Starting processMeasurements...")
-        print("🔵 API URL: \(apiBaseURL)/measurements/validate")
-        print("🔵 API Key: \(apiKey)")
+        print("🔵 Starting processMeasurements…")
+        print("🔵 API URL: \(apiBaseURL.absoluteString)")
         
         do {
             // Create measurement data
@@ -75,14 +79,7 @@ final class CaptureFlowViewModel: ObservableObject {
             print("🔵 JSON data created, size: \(jsonData.count) bytes")
             
             // Create URL
-            guard let url = URL(string: "\(apiBaseURL)/measurements/validate") else {
-                print("❌ Failed to create URL")
-                throw NSError(domain: "Invalid URL", code: -1)
-            }
-            print("🔵 URL created: \(url)")
-            
-            // Create request
-            var request = URLRequest(url: url)
+            var request = URLRequest(url: apiBaseURL)
             request.httpMethod = "POST"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type" )
             request.setValue(apiKey, forHTTPHeaderField: "X-API-Key")
@@ -117,12 +114,21 @@ final class CaptureFlowViewModel: ObservableObject {
                 throw NSError(domain: "API Error", code: httpResponse.statusCode )
             }
             
+        } catch let urlError as URLError {
+            let message = "Network error: \(urlError.localizedDescription). Make sure the backend at \(apiBaseURL.absoluteString) is reachable from your device."
+            state = .error(message)
+            alertMessage = message
+            print("❌ URLError: \(urlError)")
+        } catch let apiError as NSError where apiError.domain == "API Error" {
+            let message = "Backend rejected the request (HTTP \(apiError.code)). Check the FastAPI logs for the detailed error."
+            state = .error(message)
+            alertMessage = message
+            print("❌ API Error: status=\(apiError.code)")
         } catch {
             let message = "Failed to process measurements: \(error.localizedDescription)"
             state = .error(message)
             alertMessage = message
             print("❌ Error:", error)
-            print("❌ Error details:", error)
         }
     }
 
@@ -131,5 +137,3 @@ final class CaptureFlowViewModel: ObservableObject {
         alertMessage = nil
     }
 }
-
-

@@ -1,3 +1,4 @@
+
 # FitTwin Platform
 
 FitTwin is a monorepo that bundles the NestJS backend, Next.js shopper and brand portals, and NativeScript lab shells used for native demos. This README captures how we spin up the full stack locally and the tooling you need around it.
@@ -103,6 +104,8 @@ The Nest backend now supports two Postgres targets:
 `DATABASE_MODE` defaults to `local` if omitted; override TLS/SSL settings via standard TypeORM options when you introduce the shared `DatabaseModule`.
 
 ## NativeScript lab shells
+## iOS ##
+ Laura Tornga device name: Laura Tornga’s iPhone (18.6.2) with UDID 00008140-000C75D61E82801C.
 
 Run these from the repo root after the web stack is live:
 

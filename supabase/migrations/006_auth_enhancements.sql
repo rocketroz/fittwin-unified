@@ -1,6 +1,24 @@
 -- Auth Enhancements Migration
 -- Adds refresh tokens, failed attempts tracking, and user roles
 
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'users'
+  ) THEN
+    EXECUTE $DDL$
+      CREATE TABLE users (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        email TEXT UNIQUE,
+        password_hash TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    $DDL$;
+  END IF;
+END
+$$;
+
 -- Add failed_attempts column to users table
 ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_attempts INTEGER DEFAULT 0;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'shopper';
@@ -49,10 +67,12 @@ $$ LANGUAGE plpgsql;
 -- RLS Policies for refresh_tokens
 ALTER TABLE refresh_tokens ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view their own refresh tokens" ON refresh_tokens;
 CREATE POLICY "Users can view their own refresh tokens"
   ON refresh_tokens FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own refresh tokens" ON refresh_tokens;
 CREATE POLICY "Users can delete their own refresh tokens"
   ON refresh_tokens FOR DELETE
   USING (auth.uid() = user_id);

@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS brands (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_brands_slug ON brands(slug);
-CREATE INDEX idx_brands_onboarded ON brands(onboarded);
+CREATE INDEX IF NOT EXISTS idx_brands_slug ON brands(slug);
+CREATE INDEX IF NOT EXISTS idx_brands_onboarded ON brands(onboarded);
 
 -- ============================================================================
 -- BRAND USERS (for multi-user brand accounts)
@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS brand_users (
     UNIQUE(brand_id, user_id)
 );
 
-CREATE INDEX idx_brand_users_brand_id ON brand_users(brand_id);
-CREATE INDEX idx_brand_users_user_id ON brand_users(user_id);
+CREATE INDEX IF NOT EXISTS idx_brand_users_brand_id ON brand_users(brand_id);
+CREATE INDEX IF NOT EXISTS idx_brand_users_user_id ON brand_users(user_id);
 
 -- ============================================================================
 -- PRODUCTS
@@ -55,9 +55,9 @@ CREATE TABLE IF NOT EXISTS products (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_products_brand_id ON products(brand_id);
-CREATE INDEX idx_products_category ON products(category);
-CREATE INDEX idx_products_active ON products(active);
+CREATE INDEX IF NOT EXISTS idx_products_brand_id ON products(brand_id);
+CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+CREATE INDEX IF NOT EXISTS idx_products_active ON products(active);
 
 -- ============================================================================
 -- PRODUCT VARIANTS
@@ -76,9 +76,9 @@ CREATE TABLE IF NOT EXISTS product_variants (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_product_variants_product_id ON product_variants(product_id);
-CREATE INDEX idx_product_variants_sku ON product_variants(sku);
-CREATE INDEX idx_product_variants_stock ON product_variants(stock);
+CREATE INDEX IF NOT EXISTS idx_product_variants_product_id ON product_variants(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_variants_sku ON product_variants(sku);
+CREATE INDEX IF NOT EXISTS idx_product_variants_stock ON product_variants(stock);
 
 -- ============================================================================
 -- SIZE CHARTS
@@ -95,8 +95,8 @@ CREATE TABLE IF NOT EXISTS size_charts (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_size_charts_brand_id ON size_charts(brand_id);
-CREATE INDEX idx_size_charts_category ON size_charts(category);
+CREATE INDEX IF NOT EXISTS idx_size_charts_brand_id ON size_charts(brand_id);
+CREATE INDEX IF NOT EXISTS idx_size_charts_category ON size_charts(category);
 
 -- ============================================================================
 -- FIT MAPS (brand-specific fit rules)
@@ -112,18 +112,20 @@ CREATE TABLE IF NOT EXISTS fit_maps (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_fit_maps_brand_id ON fit_maps(brand_id);
-CREATE INDEX idx_fit_maps_category ON fit_maps(category);
+CREATE INDEX IF NOT EXISTS idx_fit_maps_brand_id ON fit_maps(brand_id);
+CREATE INDEX IF NOT EXISTS idx_fit_maps_category ON fit_maps(category);
 
 -- ============================================================================
 -- Add foreign key constraints to products
 -- ============================================================================
 
 ALTER TABLE products
+    DROP CONSTRAINT IF EXISTS fk_products_size_chart,
     ADD CONSTRAINT fk_products_size_chart
     FOREIGN KEY (size_chart_id) REFERENCES size_charts(id) ON DELETE SET NULL;
 
 ALTER TABLE products
+    DROP CONSTRAINT IF EXISTS fk_products_fit_map,
     ADD CONSTRAINT fk_products_fit_map
     FOREIGN KEY (fit_map_id) REFERENCES fit_maps(id) ON DELETE SET NULL;
 
@@ -143,8 +145,8 @@ CREATE TABLE IF NOT EXISTS catalog_import_jobs (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_catalog_import_jobs_brand_id ON catalog_import_jobs(brand_id);
-CREATE INDEX idx_catalog_import_jobs_status ON catalog_import_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_catalog_import_jobs_brand_id ON catalog_import_jobs(brand_id);
+CREATE INDEX IF NOT EXISTS idx_catalog_import_jobs_status ON catalog_import_jobs(status);
 
 -- ============================================================================
 -- ROW-LEVEL SECURITY (RLS) POLICIES
@@ -160,65 +162,79 @@ ALTER TABLE fit_maps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog_import_jobs ENABLE ROW LEVEL SECURITY;
 
 -- Brands: Users can view all brands, but only brand users can modify
+DROP POLICY IF EXISTS "Anyone can view brands" ON brands;
 CREATE POLICY "Anyone can view brands"
     ON brands FOR SELECT
     USING (true);
 
+DROP POLICY IF EXISTS "Brand users can update their brands" ON brands;
 CREATE POLICY "Brand users can update their brands"
     ON brands FOR UPDATE
     USING (id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
 -- Brand Users: Users can view their own brand memberships
+DROP POLICY IF EXISTS "Users can view their brand memberships" ON brand_users;
 CREATE POLICY "Users can view their brand memberships"
     ON brand_users FOR SELECT
     USING (user_id = auth.uid());
 
 -- Products: Anyone can view active products, brand users can manage
+DROP POLICY IF EXISTS "Anyone can view active products" ON products;
 CREATE POLICY "Anyone can view active products"
     ON products FOR SELECT
     USING (active = true OR brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Brand users can insert products" ON products;
 CREATE POLICY "Brand users can insert products"
     ON products FOR INSERT
     WITH CHECK (brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Brand users can update products" ON products;
 CREATE POLICY "Brand users can update products"
     ON products FOR UPDATE
     USING (brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Brand users can delete products" ON products;
 CREATE POLICY "Brand users can delete products"
     ON products FOR DELETE
     USING (brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
 -- Product Variants: Anyone can view variants of active products
+DROP POLICY IF EXISTS "Anyone can view product variants" ON product_variants;
 CREATE POLICY "Anyone can view product variants"
     ON product_variants FOR SELECT
     USING (product_id IN (SELECT id FROM products WHERE active = true)
            OR product_id IN (SELECT id FROM products WHERE brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid())));
 
+DROP POLICY IF EXISTS "Brand users can manage product variants" ON product_variants;
 CREATE POLICY "Brand users can manage product variants"
     ON product_variants FOR ALL
     USING (product_id IN (SELECT id FROM products WHERE brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid())));
 
 -- Size Charts: Brand users can manage their size charts
+DROP POLICY IF EXISTS "Brand users can view their size charts" ON size_charts;
 CREATE POLICY "Brand users can view their size charts"
     ON size_charts FOR SELECT
     USING (brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Brand users can manage size charts" ON size_charts;
 CREATE POLICY "Brand users can manage size charts"
     ON size_charts FOR ALL
     USING (brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
 -- Fit Maps: Brand users can manage their fit maps
+DROP POLICY IF EXISTS "Brand users can view their fit maps" ON fit_maps;
 CREATE POLICY "Brand users can view their fit maps"
     ON fit_maps FOR SELECT
     USING (brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Brand users can manage fit maps" ON fit_maps;
 CREATE POLICY "Brand users can manage fit maps"
     ON fit_maps FOR ALL
     USING (brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
 
 -- Catalog Import Jobs: Brand users can view their import jobs
+DROP POLICY IF EXISTS "Brand users can view their import jobs" ON catalog_import_jobs;
 CREATE POLICY "Brand users can view their import jobs"
     ON catalog_import_jobs FOR SELECT
     USING (brand_id IN (SELECT brand_id FROM brand_users WHERE user_id = auth.uid()));
@@ -228,31 +244,37 @@ CREATE POLICY "Brand users can view their import jobs"
 -- ============================================================================
 
 -- Triggers for updated_at
+DROP TRIGGER IF EXISTS update_brands_updated_at ON brands;
 CREATE TRIGGER update_brands_updated_at
     BEFORE UPDATE ON brands
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_products_updated_at ON products;
 CREATE TRIGGER update_products_updated_at
     BEFORE UPDATE ON products
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_product_variants_updated_at ON product_variants;
 CREATE TRIGGER update_product_variants_updated_at
     BEFORE UPDATE ON product_variants
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_size_charts_updated_at ON size_charts;
 CREATE TRIGGER update_size_charts_updated_at
     BEFORE UPDATE ON size_charts
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_fit_maps_updated_at ON fit_maps;
 CREATE TRIGGER update_fit_maps_updated_at
     BEFORE UPDATE ON fit_maps
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_catalog_import_jobs_updated_at ON catalog_import_jobs;
 CREATE TRIGGER update_catalog_import_jobs_updated_at
     BEFORE UPDATE ON catalog_import_jobs
     FOR EACH ROW
