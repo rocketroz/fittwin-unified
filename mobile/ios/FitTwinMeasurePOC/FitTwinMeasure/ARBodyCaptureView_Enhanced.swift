@@ -21,6 +21,7 @@ struct ARBodyCaptureView_Enhanced: View {
     @State private var errorMessage: String?
     @State private var armPositionResult: ArmPositionValidator.ValidationResult?
     @State private var showSettings: Bool = false
+    @State private var lastFeedbackTime: Date = .distantPast
     
     enum CaptureState {
         case idle
@@ -629,19 +630,21 @@ struct ARBodyCaptureView_Enhanced: View {
             }
             
             // Get current skeleton from tracking manager
-            // Note: In production, you'd get this from ARSession delegate
-            // For now, we'll simulate validation
+            guard let skeleton = trackingManager.currentSkeleton else {
+                return
+            }
             
             // Validate arm position
-            // let result = armValidator.validate(skeleton: skeleton)
-            // armPositionResult = result
+            let result = armValidator.validate(skeleton: skeleton)
+            armPositionResult = result
             
-            // Provide audio feedback
-            // if result.isValid && !armValidator.isStableAndValid {
-            //     // Still building up consecutive valid frames
-            // } else if !result.isValid {
-            //     // Provide correction feedback (throttled)
-            // }
+            // Provide audio feedback (throttled to every 3 seconds)
+            if !result.isValid {
+                if Date().timeIntervalSince(lastFeedbackTime) > 3.0 {
+                    audioManager.speak(result.feedback)
+                    lastFeedbackTime = Date()
+                }
+            }
             
             // Check if ready
             if armValidator.isStableAndValid && captureState == .positioning {

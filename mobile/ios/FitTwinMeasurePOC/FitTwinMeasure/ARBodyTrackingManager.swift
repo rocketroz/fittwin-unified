@@ -22,10 +22,13 @@ class ARBodyTrackingManager: NSObject, ObservableObject {
     @Published var trackingQuality: ARFrame.WorldTrackingState.Reason? = nil
     @Published var captureProgress: Double = 0.0
     @Published var currentRotationAngle: Double = 0.0
+    @Published var currentSkeleton: ARSkeleton3D?  // For arm position validation
+    
+    // MARK: - Public Properties
+    
+    let arSession = ARSession()  // Public for ARViewContainer
     
     // MARK: - Private Properties
-    
-    private let arSession = ARSession()
     private var bodyAnchor: ARBodyAnchor?
     private var capturedFrames: [CapturedBodyFrame] = []
     private var depthMaps: [AVDepthData] = []
@@ -298,6 +301,11 @@ extension ARBodyTrackingManager: ARSessionDelegate {
         for anchor in anchors {
             if let bodyAnchor = anchor as? ARBodyAnchor {
                 self.bodyAnchor = bodyAnchor
+                
+                // Publish skeleton for arm position validation
+                DispatchQueue.main.async {
+                    self.currentSkeleton = bodyAnchor.skeleton
+                }
                 
                 // Capture frame if in capture mode
                 if startTime != nil {

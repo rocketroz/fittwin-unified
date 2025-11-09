@@ -92,7 +92,7 @@ struct ContentView: View {
             .fullScreenCover(isPresented: $showCapture) {
                 if selectedMethod == .arkit {
                     if #available(iOS 13.0, *) {
-                        ARBodyCaptureView()
+                        ARBodyCaptureView_Enhanced()
                     } else {
                         Text("ARKit Body Tracking requires iOS 13+")
                     }
