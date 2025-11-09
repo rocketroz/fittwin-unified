@@ -32,13 +32,14 @@ This is a **proof-of-concept** iOS application that demonstrates accurate body m
 - Calf Circumference
 
 ✅ **On-Device Processing**
-- No backend required
-- Instant results
-- Privacy-focused
+- Pose detection on-device (Apple Vision)
+- Measurement calculation via Python API
+- Privacy-focused (no data stored)
 
-✅ **Export Functionality**
-- JSON export (console output)
-- Ready for API integration
+✅ **Python API Integration**
+- Real-time measurement calculation
+- MediaPipe landmark format
+- 18 measurements returned
 
 ## 🛠️ Requirements
 
@@ -152,13 +153,20 @@ heightBiasCM: 0.5
 ## 📂 Project Structure
 
 ```
-FitTwinMeasure/
-├── FitTwinMeasureApp.swift          # App entry point
-├── ContentView.swift                # Main UI views
-├── MeasurementViewModel.swift       # Capture flow logic
-├── MeasurementCalculator.swift      # Measurement algorithms
-├── LiDARCameraManager.swift         # Camera + LiDAR capture
-└── Info.plist                       # App configuration
+FitTwinMeasurePOC/
+├── FitTwinMeasure/                    # iOS app source
+│   ├── FitTwinMeasureApp.swift       # App entry point
+│   ├── ContentView.swift             # Main UI
+│   ├── MeasurementViewModel.swift    # Capture logic
+│   ├── MediaPipePoseDetector.swift   # Pose detection (NEW)
+│   ├── PythonMeasurementAPI.swift    # API client (NEW)
+│   ├── MeasurementCalculator.swift   # Formulas (legacy)
+│   ├── LiDARCameraManager.swift      # Camera + LiDAR
+│   └── Info.plist                    # Permissions
+├── TESTING_GUIDE.md                   # Comprehensive testing (NEW)
+├── CHANGELOG.md                       # Version history (NEW)
+├── MEDIAPIPE_INTEGRATION.md          # Technical details (NEW)
+└── README.md                          # This file
 ```
 
 ## 🔍 Key Files
@@ -239,42 +247,48 @@ Check Xcode console for:
    - Stand still during countdown
    - Wear form-fitting clothing
 
-## 🔬 Current Limitations
+## 🔬 Current Status
 
-### Pose Detection
-- Currently uses **mock landmarks** for testing
-- **TODO**: Integrate MediaPipe or Vision framework for real pose detection
+### ✅ Implemented
+- **Pose Detection**: Apple Vision framework extracts 33 landmarks
+- **Python API**: Full integration with measurement service
+- **Real Measurements**: 18 measurements calculated server-side
+- **Error Handling**: Complete error handling and logging
 
-### Depth Data
-- LiDAR depth data is captured but not yet used in calculations
-- **TODO**: Enhance measurement accuracy using depth maps
+### 🚧 In Progress
+- **User Testing**: Awaiting testing on physical iPhones
+- **Accuracy Validation**: Comparing to tape measurements
+- **Calibration**: Adjusting constants based on test data
 
-### Export
-- JSON currently prints to console
-- **TODO**: Add share sheet for file export
+### 📋 Planned
+- **Export**: Share sheet for JSON/CSV export
+- **History**: Measurement history tracking
+- **Offline Mode**: On-device calculation option
 
 ## 🚀 Next Steps
 
-### Phase 1: Real Pose Detection
-- [ ] Integrate MediaPipe iOS SDK
-- [ ] Extract 33 body landmarks from images
-- [ ] Use real landmarks instead of mocks
+### Phase 1: Testing & Validation (Current)
+- [ ] Complete end-to-end testing on iPhone 12 Pro+
+- [ ] Validate accuracy against tape measurements
+- [ ] Test repeatability (3+ captures per subject)
+- [ ] Document all issues and results
 
-### Phase 2: Depth Integration
-- [ ] Process AVDepthData from LiDAR
-- [ ] Use depth maps for more accurate circumferences
-- [ ] Implement 3D skeleton reconstruction
+### Phase 2: Accuracy Improvements
+- [ ] Integrate full MediaPipe iOS SDK (if needed)
+- [ ] Calibrate measurement constants based on test data
+- [ ] Improve landmark detection confidence
 
-### Phase 3: Backend Integration
-- [ ] Add API client for measurement submission
-- [ ] Implement user authentication
-- [ ] Store measurement history
+### Phase 3: UX Enhancements
+- [ ] Add visual guides during capture
+- [ ] Improve error messages
+- [ ] Add measurement history
+- [ ] Add export functionality (JSON/CSV)
 
-### Phase 4: Production Features
-- [ ] Share sheet for JSON/CSV export
-- [ ] Measurement history view
-- [ ] Comparison with previous measurements
-- [ ] Size recommendation engine
+### Phase 4: Backend Integration
+- [ ] Deploy Python service to production
+- [ ] Add user authentication
+- [ ] Store measurements in database
+- [ ] Add avatar generation integration
 
 ## 📚 References
 
@@ -299,7 +313,7 @@ For questions or issues, contact the FitTwin development team.
 
 ---
 
-**Version**: 1.0  
-**Last Updated**: 2025-11-08  
+**Version**: 1.1.0  
+**Last Updated**: 2025-11-09  
 **Minimum iOS**: 16.0  
 **Tested On**: iPhone 14 Pro, iOS 17.0
