@@ -47,6 +47,134 @@
 ## Development History
 
 
+### [2025-11-09 18:46] - Commit: be2d9287 - : Add Solo Mode design with sensor-based phone placement
+
+**Branch**: feature/ios-measurement-poc  
+**Author**: rocketroz  
+**Files Changed**: 3 files (+1203 -5)
+
+#### Changes
+- **Updated**: `DEVLOG.md`
+- **Added**: `mobile/ios/FitTwinMeasurePOC/SOLO_MODE_DESIGN.md`
+- **Added**: `mobile/ios/FitTwinMeasurePOC/UX_REDESIGN_TWO_MODES.md`
+
+#### Commit Message
+```
+Add Solo Mode design with sensor-based phone placement
+MAJOR UX REDESIGN based on user feedback:
+
+User clarified that Solo Mode should NOT be handheld. Instead:
+- User places phone on GROUND or against WALL
+- App validates phone ANGLE using device sensors (CoreMotion)
+- Ensures CONSISTENT angle across all captures and all users
+- Provides STANDARDIZED measurements that are comparable
+
+WHY THIS IS BETTER:
+1. Consistency: Same angle every time = comparable measurements
+2. Stability: Phone doesn't shake = clearer images
+3. Standardization: All users use same setup = data quality
+4. Accuracy: Known angle enables better depth estimation
+5. Simplicity: Just place phone and go
+
+NEW FILES:
+
+1. SOLO_MODE_DESIGN.md (comprehensive design spec)
+   - Three placement options:
+     * Ground placement (0° - recommended)
+     * Wall/shelf placement (45°)
+     * Upright placement (90°)
+
+   - Sensor validation using CoreMotion:
+     * Real-time angle feedback
+     * Pitch and roll monitoring
+     * ±5° tolerance
+     * Visual guidance ("Tilt forward 10°")
+
+   - Distance validation using Vision:
+     * Estimates distance from body size
+     * 3-4 feet for ground placement
+     * 4-5 feet for wall placement
+     * 5-6 feet for upright placement
+
+   - Complete UI mockups:
+     * Placement selection screen
+     * Angle validation screen (live feedback)
+     * Distance validation screen
+     * Level indicator visualization
+
+   - Implementation details:
+     * PhoneAngleValidator class
+     * DistanceEstimator class
+     * Complete code examples
+     * Step-by-step user flow
+
+2. UX_REDESIGN_TWO_MODES.md (updated)
+   - Updated Solo Mode advantages
+   - Added sensor validation to flow
+   - Emphasized consistency and standardization
+
+TECHNICAL APPROACH:
+
+CoreMotion API:
+- CMMotionManager for device orientation
+- attitude.pitch for forward/backward tilt
+- attitude.roll for left/right tilt
+- Real-time updates at 10Hz
+
+Vision Framework:
+- VNDetectHumanBodyPoseRequest for body detection
+- Estimate distance from body height in frame
+- Validate user is at correct distance
+
+EXPECTED BENEFITS:
+
+Accuracy:
+- ±2-3 cm for heights/lengths (same as before)
+- ±4-6 cm for circumferences (same as before)
+- BUT: Now CONSISTENT across all users
+
+User Experience:
+- Faster setup (no tripod needed)
+- More intuitive (place phone like a mirror)
+- Can see themselves during capture
+- Visual feedback is clear
+
+Data Quality:
+- All measurements use same reference angle
+- Can compare measurements across users
+- Can track changes over time reliably
+- Professional-grade standardization
+
+NEXT STEPS:
+1. Implement PhoneAngleValidator with CoreMotion
+2. Create placement selection UI
+3. Add angle validation screen with live feedback
+4. Test sensor accuracy on different surfaces
+5. Integrate with Vision pose detection
+
+This design provides the best of both worlds:
+- Ease of Solo Mode (no helper needed)
+- Consistency of professional setups (validated angle)
+- Standardization for data quality
+```
+
+#### Technical Details
+<!-- Auto-generated entry. Add technical details here. -->
+
+#### Rationale
+<!-- Add rationale for this change here. -->
+
+#### Testing
+<!-- Add testing instructions here. -->
+
+#### Related
+- Commit: be2d9287
+- Branch: feature/ios-measurement-poc
+
+---
+
+
+
 ### [2025-11-09 18:38] - Commit: c176a74b - : Fix critical device testing issues: orientation, audio, and progress tracking
 
 **Branch**: feature/ios-measurement-poc  
@@ -1060,12 +1188,12 @@ session.addOutput(depthOutput)
 
 ## Statistics
 
-**Total Commits**: 31  
+**Total Commits**: 32  
 **Total Files Changed**: 25  
-**Total Additions**: +116,159 lines  
-**Total Deletions**: -10,380 lines  
+**Total Additions**: +117,362 lines  
+**Total Deletions**: -10,385 lines  
 **Active Branch**: feature/ios-measurement-poc  
-**Last Updated**: 2025-11-09 18:38 UTC
+**Last Updated**: 2025-11-09 18:46 UTC
 
 ---
 
@@ -1092,5 +1220,5 @@ session.addOutput(depthOutput)
 
 ---
 
-**Last Entry**: 2025-11-09 18:38 UTC
+**Last Entry**: 2025-11-09 18:46 UTC
 **Next Update**: Automatic on next commit
