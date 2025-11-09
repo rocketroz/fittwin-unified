@@ -8,11 +8,18 @@ class MeasurementViewModel: ObservableObject {
     @Published var countdown: Int? = nil
     
     private let cameraManager = LiDARCameraManager()
-    private let calculator = MeasurementCalculator()
+    private let poseDetector = MediaPipePoseDetector()
+    private let pythonAPI = PythonMeasurementAPI(
+        baseURL: "https://your-api-url.com",  // TODO: Replace with actual URL
+        apiKey: "your-api-key"  // TODO: Replace with actual key
+    )
+    
     private var frontImage: UIImage?
     private var frontDepthData: AVDepthData?
+    private var frontPose: MediaPipePoseDetector.PoseResult?
     private var sideImage: UIImage?
     private var sideDepthData: AVDepthData?
+    private var sidePose: MediaPipePoseDetector.PoseResult?
     
     func startMeasurement() {
         state = .requestingPermissions
@@ -79,26 +86,48 @@ class MeasurementViewModel: ObservableObject {
     }
     
     private func processMeasurements() async {
-        guard let frontImage = frontImage else {
-            state = .error("Missing front image")
+        guard let frontImage = frontImage, let sideImage = sideImage else {
+            state = .error("Missing images")
             return
         }
         
         do {
-            // Extract pose landmarks from front image
-            let frontLandmarks = try await extractLandmarks(from: frontImage)
+            // Extract pose landmarks from both images
+            print("🔍 Detecting pose in front image...")
+            let frontPose = try await poseDetector.detectPose(in: frontImage)
+            self.frontPose = frontPose
             
-            // Extract pose landmarks from side image (if available)
-            var sideLandmarks: [BodyLandmark]? = nil
-            if let sideImage = sideImage {
-                sideLandmarks = try? await extractLandmarks(from: sideImage)
-            }
+            print("🔍 Detecting pose in side image...")
+            let sidePose = try await poseDetector.detectPose(in: sideImage)
+            self.sidePose = sidePose
             
-            // Calculate measurements
-            let measurements = calculator.calculateMeasurements(
-                frontLandmarks: frontLandmarks,
-                sideLandmarks: sideLandmarks,
-                referenceHeight: 170.0  // Default, can be user-provided
+            print("✅ Pose detection complete")
+            print("📤 Sending to Python API...")
+            
+            // Send to Python API for measurement calculation
+            let response = try await pythonAPI.validateMeasurements(
+                frontPose: frontPose,
+                sidePose: sidePose
+            )
+            
+            print("✅ Received measurements from API")
+            print("📊 Confidence: \(response.confidence)")
+            
+            // Convert API response to BodyMeasurements
+            let measurements = BodyMeasurements(
+                height_cm: response.height_cm ?? 0,
+                shoulder_width_cm: response.shoulder_cm ?? 0,
+                chest_cm: response.chest_cm ?? 0,
+                waist_natural_cm: response.waist_natural_cm ?? 0,
+                hip_low_cm: response.hip_low_cm ?? 0,
+                inseam_cm: response.inseam_cm ?? 0,
+                outseam_cm: response.outseam_cm ?? 0,
+                sleeve_length_cm: response.sleeve_cm ?? 0,
+                neck_cm: response.neck_cm ?? 0,
+                bicep_cm: response.bicep_cm ?? 0,
+                forearm_cm: response.forearm_cm ?? 0,
+                thigh_cm: response.thigh_cm ?? 0,
+                calf_cm: response.calf_cm ?? 0
             )
             
             state = .completed(measurements)
@@ -106,48 +135,9 @@ class MeasurementViewModel: ObservableObject {
             // Stop camera
             cameraManager.stopSession()
         } catch {
-            state = .error("Measurement calculation failed: \(error.localizedDescription)")
+            print("❌ Error: \(error.localizedDescription)")
+            state = .error("Measurement failed: \(error.localizedDescription)")
         }
-    }
-    
-    private func extractLandmarks(from image: UIImage) async throws -> [BodyLandmark] {
-        // TODO: Integrate with MediaPipe or Vision framework
-        // For now, return mock landmarks for testing
-        return generateMockLandmarks()
-    }
-    
-    private func generateMockLandmarks() -> [BodyLandmark] {
-        // Mock MediaPipe pose landmarks (33 points)
-        var landmarks: [BodyLandmark] = []
-        
-        // Nose (0)
-        landmarks.append(BodyLandmark(index: 0, x: 0.5, y: 0.2, z: 0.0))
-        
-        // Shoulders (11, 12)
-        landmarks.append(BodyLandmark(index: 11, x: 0.4, y: 0.35, z: 0.0))
-        landmarks.append(BodyLandmark(index: 12, x: 0.6, y: 0.35, z: 0.0))
-        
-        // Elbows (13, 14)
-        landmarks.append(BodyLandmark(index: 13, x: 0.35, y: 0.5, z: 0.0))
-        landmarks.append(BodyLandmark(index: 14, x: 0.65, y: 0.5, z: 0.0))
-        
-        // Wrists (15, 16)
-        landmarks.append(BodyLandmark(index: 15, x: 0.3, y: 0.65, z: 0.0))
-        landmarks.append(BodyLandmark(index: 16, x: 0.7, y: 0.65, z: 0.0))
-        
-        // Hips (23, 24)
-        landmarks.append(BodyLandmark(index: 23, x: 0.42, y: 0.6, z: 0.0))
-        landmarks.append(BodyLandmark(index: 24, x: 0.58, y: 0.6, z: 0.0))
-        
-        // Knees (25, 26)
-        landmarks.append(BodyLandmark(index: 25, x: 0.4, y: 0.75, z: 0.0))
-        landmarks.append(BodyLandmark(index: 26, x: 0.6, y: 0.75, z: 0.0))
-        
-        // Ankles (27, 28)
-        landmarks.append(BodyLandmark(index: 27, x: 0.4, y: 0.95, z: 0.0))
-        landmarks.append(BodyLandmark(index: 28, x: 0.6, y: 0.95, z: 0.0))
-        
-        return landmarks
     }
     
     private func startCountdown(duration: Int, completion: @escaping () -> Void) {
@@ -173,8 +163,10 @@ class MeasurementViewModel: ObservableObject {
         countdown = nil
         frontImage = nil
         frontDepthData = nil
+        frontPose = nil
         sideImage = nil
         sideDepthData = nil
+        sidePose = nil
         cameraManager.stopSession()
     }
     

@@ -12,6 +12,8 @@
 		A10005 /* MeasurementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10006 /* MeasurementViewModel.swift */; };
 		A10007 /* MeasurementCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10008 /* MeasurementCalculator.swift */; };
 		A10009 /* LiDARCameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10010 /* LiDARCameraManager.swift */; };
+		A10011 /* MediaPipePoseDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10012 /* MediaPipePoseDetector.swift */; };
+		A10013 /* PythonMeasurementAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10014 /* PythonMeasurementAPI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +23,8 @@
 		A10008 /* MeasurementCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementCalculator.swift; sourceTree = "<group>"; };
 		A10010 /* LiDARCameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiDARCameraManager.swift; sourceTree = "<group>"; };
 		A10011 /* FitTwinMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitTwinMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10012 /* MediaPipePoseDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPipePoseDetector.swift; sourceTree = "<group>"; };
+		A10014 /* PythonMeasurementAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythonMeasurementAPI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +54,8 @@
 				A10006 /* MeasurementViewModel.swift */,
 				A10008 /* MeasurementCalculator.swift */,
 				A10010 /* LiDARCameraManager.swift */,
+				A10012 /* MediaPipePoseDetector.swift */,
+				A10014 /* PythonMeasurementAPI.swift */,
 			);
 			path = FitTwinMeasure;
 			sourceTree = "<group>";
@@ -118,6 +124,8 @@
 				A10005 /* MeasurementViewModel.swift in Sources */,
 				A10007 /* MeasurementCalculator.swift in Sources */,
 				A10009 /* LiDARCameraManager.swift in Sources */,
+				A10011 /* MediaPipePoseDetector.swift in Sources */,
+				A10013 /* PythonMeasurementAPI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
