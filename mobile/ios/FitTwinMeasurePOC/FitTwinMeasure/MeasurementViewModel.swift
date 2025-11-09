@@ -8,15 +8,14 @@ class MeasurementViewModel: ObservableObject {
     @Published var countdown: Int? = nil
     
     private let cameraManager = LiDARCameraManager()
-    private let poseDetector = MediaPipePoseDetector()
-    private let pythonAPI = PythonMeasurementAPI()  // Reads from Info.plist
+    private let poseDetector = PoseDetector()  // ✅ FIXED: Using real PoseDetector
     
     private var frontImage: UIImage?
     private var frontDepthData: AVDepthData?
-    private var frontPose: MediaPipePoseDetector.PoseResult?
+    private var frontLandmarks: [BodyLandmark]?
     private var sideImage: UIImage?
     private var sideDepthData: AVDepthData?
-    private var sidePose: MediaPipePoseDetector.PoseResult?
+    private var sideLandmarks: [BodyLandmark]?
     
     func startMeasurement() {
         state = .requestingPermissions
@@ -50,6 +49,8 @@ class MeasurementViewModel: ObservableObject {
                     self.frontImage = result.image
                     self.frontDepthData = result.depthData
                     
+                    print("✅ Front image captured")
+                    
                     // Move to side view
                     try await Task.sleep(for: .seconds(1))
                     self.state = .readyForSide
@@ -71,9 +72,10 @@ class MeasurementViewModel: ObservableObject {
                     self.sideImage = result.image
                     self.sideDepthData = result.depthData
                     
+                    print("✅ Side image captured")
+                    
                     // Process measurements
                     self.state = .processing
-                    try await Task.sleep(for: .seconds(1))
                     await self.processMeasurements()
                 } catch {
                     self.state = .error("Side capture failed: \(error.localizedDescription)")
@@ -89,43 +91,67 @@ class MeasurementViewModel: ObservableObject {
         }
         
         do {
-            // Extract pose landmarks from both images
+            // ✅ FIXED: Extract real pose landmarks using Vision framework
             print("🔍 Detecting pose in front image...")
-            let frontPose = try await poseDetector.detectPose(in: frontImage)
-            self.frontPose = frontPose
+            var frontLandmarks = try await poseDetector.detectPose(in: frontImage)
+            print("   Found \(frontLandmarks.count) landmarks")
             
             print("🔍 Detecting pose in side image...")
-            let sidePose = try await poseDetector.detectPose(in: sideImage)
-            self.sidePose = sidePose
+            var sideLandmarks = try await poseDetector.detectPose(in: sideImage)
+            print("   Found \(sideLandmarks.count) landmarks")
+            
+            // ✅ FIXED: Enhance landmarks with real 3D LiDAR depth data
+            if let frontDepthData = frontDepthData {
+                print("📊 Enhancing front landmarks with LiDAR depth data...")
+                frontLandmarks = try poseDetector.enhanceLandmarksWithDepth(
+                    frontLandmarks,
+                    depthData: frontDepthData,
+                    imageSize: frontImage.size
+                )
+                print("   ✅ Front landmarks enhanced with 3D depth")
+            } else {
+                print("   ⚠️ No depth data available for front image")
+            }
+            
+            if let sideDepthData = sideDepthData {
+                print("📊 Enhancing side landmarks with LiDAR depth data...")
+                sideLandmarks = try poseDetector.enhanceLandmarksWithDepth(
+                    sideLandmarks,
+                    depthData: sideDepthData,
+                    imageSize: sideImage.size
+                )
+                print("   ✅ Side landmarks enhanced with 3D depth")
+            } else {
+                print("   ⚠️ No depth data available for side image")
+            }
+            
+            self.frontLandmarks = frontLandmarks
+            self.sideLandmarks = sideLandmarks
             
             print("✅ Pose detection complete")
-            print("📤 Sending to Python API...")
+            print("📏 Calculating measurements using proven algorithm...")
             
-            // Send to Python API for measurement calculation
-            let response = try await pythonAPI.validateMeasurements(
-                frontPose: frontPose,
-                sidePose: sidePose
+            // ✅ FIXED: Calculate measurements using proven MeasurementCalculator
+            let measurements = MeasurementCalculator.calculateMeasurements(
+                frontLandmarks: frontLandmarks,
+                sideLandmarks: sideLandmarks,
+                referenceHeight: 170.0  // Default reference, can be customized
             )
             
-            print("✅ Received measurements from API")
-            print("📊 Confidence: \(response.confidence)")
-            
-            // Convert API response to BodyMeasurements
-            let measurements = BodyMeasurements(
-                height_cm: response.height_cm ?? 0,
-                shoulder_width_cm: response.shoulder_cm ?? 0,
-                chest_cm: response.chest_cm ?? 0,
-                waist_natural_cm: response.waist_natural_cm ?? 0,
-                hip_low_cm: response.hip_low_cm ?? 0,
-                inseam_cm: response.inseam_cm ?? 0,
-                outseam_cm: response.outseam_cm ?? 0,
-                sleeve_length_cm: response.sleeve_cm ?? 0,
-                neck_cm: response.neck_cm ?? 0,
-                bicep_cm: response.bicep_cm ?? 0,
-                forearm_cm: response.forearm_cm ?? 0,
-                thigh_cm: response.thigh_cm ?? 0,
-                calf_cm: response.calf_cm ?? 0
-            )
+            print("✅ Measurements calculated:")
+            print("   Height: \(String(format: "%.1f", measurements.height_cm)) cm")
+            print("   Shoulder: \(String(format: "%.1f", measurements.shoulder_width_cm)) cm")
+            print("   Chest: \(String(format: "%.1f", measurements.chest_cm)) cm")
+            print("   Waist: \(String(format: "%.1f", measurements.waist_natural_cm)) cm")
+            print("   Hip: \(String(format: "%.1f", measurements.hip_low_cm)) cm")
+            print("   Inseam: \(String(format: "%.1f", measurements.inseam_cm)) cm")
+            print("   Outseam: \(String(format: "%.1f", measurements.outseam_cm)) cm")
+            print("   Sleeve: \(String(format: "%.1f", measurements.sleeve_length_cm)) cm")
+            print("   Neck: \(String(format: "%.1f", measurements.neck_cm)) cm")
+            print("   Bicep: \(String(format: "%.1f", measurements.bicep_cm)) cm")
+            print("   Forearm: \(String(format: "%.1f", measurements.forearm_cm)) cm")
+            print("   Thigh: \(String(format: "%.1f", measurements.thigh_cm)) cm")
+            print("   Calf: \(String(format: "%.1f", measurements.calf_cm)) cm")
             
             state = .completed(measurements)
             
@@ -160,10 +186,10 @@ class MeasurementViewModel: ObservableObject {
         countdown = nil
         frontImage = nil
         frontDepthData = nil
-        frontPose = nil
+        frontLandmarks = nil
         sideImage = nil
         sideDepthData = nil
-        sidePose = nil
+        sideLandmarks = nil
         cameraManager.stopSession()
     }
     
