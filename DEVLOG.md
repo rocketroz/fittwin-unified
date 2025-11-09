@@ -47,6 +47,159 @@
 ## Development History
 
 
+### [2025-11-09 18:38] - Commit: c176a74b - : Fix critical device testing issues: orientation, audio, and progress tracking
+
+**Branch**: feature/ios-measurement-poc  
+**Author**: rocketroz  
+**Files Changed**: 5 files (+471 -8)
+
+#### Changes
+- **Updated**: `DEVLOG.md`
+- **Added**: `mobile/ios/FitTwinMeasurePOC/DIAGNOSIS.md`
+- **Updated**: `mobile/ios/FitTwinMeasurePOC/FitTwinMeasure/ARBodyCaptureView_Enhanced.swift`
+- **Updated**: `mobile/ios/FitTwinMeasurePOC/FitTwinMeasure/AudioGuidanceManager.swift`
+- **Updated**: `mobile/ios/FitTwinMeasurePOC/FitTwinMeasure/Info.plist`
+
+#### Commit Message
+```
+Fix critical device testing issues: orientation, audio, and progress tracking
+ROOT CAUSE ANALYSIS:
+The app was locked to portrait-only mode, causing ARKit Body Tracking to fail,
+which cascaded into all other issues. Added comprehensive debugging.
+
+FIXES IMPLEMENTED:
+
+1. Info.plist: Enable landscape orientations (CRITICAL FIX)
+   - Added UIInterfaceOrientationLandscapeLeft
+   - Added UIInterfaceOrientationLandscapeRight
+   - Keeps UIInterfaceOrientationPortrait for menu
+
+   WHY: ARKit Body Tracking has limited support for portrait orientation
+   ERROR: "ABPKPersonIDTracker portrait image is not support"
+   SOLUTION: Landscape mode provides full body tracking support
+
+2. AudioGuidanceManager.swift: Add comprehensive debug logging
+   - Log every speak() call with text, isEnabled, volume
+   - Log when audio is disabled
+   - Log when synthesizer.speak() is called
+
+   WHY: Diagnose why audio isn't playing on device
+   HELPS: Identify if issue is audio session, timing, or device settings
+
+3. ARBodyCaptureView_Enhanced.swift: Multiple improvements
+
+   a) Add lifecycle logging:
+      - Log onAppear / onDisappear
+      - Log checkSupport() execution
+      - Log AR session start
+      - Log audio announcement trigger
+
+   b) Add timer-based progress fallback:
+      - Calculate progress from elapsed time (0-30 seconds)
+      - Use max(frameProgress, timerProgress)
+      - Ensures progress bar ALWAYS moves forward
+      - Even if frame capture fails
+
+   c) Add progress debug logging:
+      - Log frame-based progress
+      - Log timer-based progress
+      - Log display progress (max of both)
+      - Log milestone announcements (25%, 50%, 75%)
+
+   d) Add capture debug logging:
+      - Log when capture starts
+      - Log when capture stops
+      - Log if no frames captured
+
+4. DIAGNOSIS.md: Complete root cause analysis document
+   - Detailed investigation of all 3 issues
+   - Explanation of portrait orientation problem
+   - Audio troubleshooting steps
+   - Progress tracking dependency chain
+   - Testing protocol
+   - Expected behavior after fixes
+
+EXPECTED RESULTS:
+
+With Landscape Orientation:
+✅ No "ABPKPersonIDTracker" error
+✅ Body tracking works reliably
+✅ Frames captured every 1.5 seconds
+✅ Progress bar updates 0-100% (even if frames fail)
+✅ Rotation angle calculated correctly
+
+With Debug Logging:
+✅ Can trace audio call chain
+✅ Can see if audio methods are triggered
+✅ Can diagnose audio session issues
+✅ Can monitor frame capture success
+✅ Can see progress calculation
+
+TESTING INSTRUCTIONS:
+
+1. Clean build (⇧⌘K) and rebuild (⌘B)
+2. Run on device (⌘R)
+3. Rotate device to LANDSCAPE mode
+4. Open Xcode console (⌘⇧Y)
+5. Watch for debug messages:
+   - 🎬 ARBodyCaptureView_Enhanced appeared
+   - ⚙️ Checking ARKit Body Tracking support...
+   - ✅ ARKit Body Tracking supported
+   - 🚀 Starting AR session...
+   - 🔊 Announcing setup...
+   - 🔊 AudioManager.speak() called: "Welcome to FitTwin..."
+   - ✅ Calling synthesizer.speak()
+6. During capture, watch for:
+   - 📹 Starting capture...
+   - 📸 Frame X captured at Ys
+   - 📈 Progress: frame=X%, timer=Y%, display=Z%
+   - 🎯 25% milestone
+   - 🎯 50% milestone
+   - 🎯 75% milestone
+   - ⏹️ Stopping capture...
+
+TROUBLESHOOTING:
+
+If audio still doesn't play:
+- Check console for "🔊 AudioManager.speak()" messages
+- If messages appear: Audio is being called, check device volume/silent mode
+- If messages don't appear: Audio methods not triggered, check view lifecycle
+
+If progress still doesn't update:
+- Check console for "📈 Progress" messages
+- Timer-based progress should ALWAYS increase 0-100%
+- If timer progress works but frame progress is 0%: Body tracking failing
+- Check for "📸 Frame X captured" messages
+
+If "ABPKPersonIDTracker" error persists:
+- Ensure device is in LANDSCAPE mode (not portrait)
+- Check Info.plist has landscape orientations
+- Restart app after orientation change
+
+NEXT STEPS:
+1. Test in landscape mode
+2. Review Xcode console output
+3. Report findings (what works, what doesn't)
+4. Share console logs if issues persist
+```
+
+#### Technical Details
+<!-- Auto-generated entry. Add technical details here. -->
+
+#### Rationale
+<!-- Add rationale for this change here. -->
+
+#### Testing
+<!-- Add testing instructions here. -->
+
+#### Related
+- Commit: c176a74b
+- Branch: feature/ios-measurement-poc
+
+---
+
+
+
 ### [2025-11-09 18:19] - Commit: 04ac8e42 - : Fix device testing issues: integrate audio guidance and arm validation
 
 **Branch**: feature/ios-measurement-poc  
@@ -907,12 +1060,12 @@ session.addOutput(depthOutput)
 
 ## Statistics
 
-**Total Commits**: 30  
+**Total Commits**: 31  
 **Total Files Changed**: 25  
-**Total Additions**: +115,688 lines  
-**Total Deletions**: -10,372 lines  
+**Total Additions**: +116,159 lines  
+**Total Deletions**: -10,380 lines  
 **Active Branch**: feature/ios-measurement-poc  
-**Last Updated**: 2025-11-09 18:19 UTC
+**Last Updated**: 2025-11-09 18:38 UTC
 
 ---
 
@@ -939,5 +1092,5 @@ session.addOutput(depthOutput)
 
 ---
 
-**Last Entry**: 2025-11-09 18:19 UTC
+**Last Entry**: 2025-11-09 18:38 UTC
 **Next Update**: Automatic on next commit
