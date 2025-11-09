@@ -13,14 +13,15 @@
     "frontend/packages/analytics"
   ],
   "scripts": {
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "build": "turbo run build",
+    "lint": "npm_config_workspaces=false turbo run lint",
+    "test": "node scripts/run_turbo_tests.mjs",
+    "build": "npm_config_workspaces=false turbo run build",
     "test:full": "./scripts/test-full.sh",
     "prepare": "husky install",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "dev:stack": "node scripts/dev-stack.mjs",
+    "test:status": "node scripts/collect_test_status.mjs",
     "test:e2e": "playwright test frontend/apps/shopper/tests/e2e frontend/apps/brand-portal/tests/e2e",
     "ns:shopper:android": "cd frontend/nativescript/shopper-lab && ns run android --no-hmr --env.skipInstall",
     "ns:shopper:ios": "cd frontend/nativescript/shopper-lab && ns run ios --no-hmr --env.skipInstall",
