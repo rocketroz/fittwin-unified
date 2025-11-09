@@ -1,6 +1,185 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedMethod: CaptureMethod = .arkit
+    @State private var showCapture = false
+    
+    enum CaptureMethod {
+        case arkit
+        case vision
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 30) {
+                // App header
+                VStack(spacing: 12) {
+                    Image(systemName: "figure.stand")
+                        .font(.system(size: 80))
+                        .foregroundColor(.blue)
+                    
+                    Text("FitTwin Measure")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    
+                    Text("Accurate body measurements using LiDAR")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 50)
+                
+                Spacer()
+                
+                // Capture method selection
+                VStack(spacing: 20) {
+                    Text("Select Capture Method")
+                        .font(.headline)
+                    
+                    // ARKit method (recommended)
+                    captureMethodCard(
+                        method: .arkit,
+                        icon: "arkit",
+                        title: "ARKit Body Tracking",
+                        subtitle: "Best Accuracy (±1-2 cm)",
+                        features: [
+                            "90+ body joints tracked",
+                            "Real-time 3D skeleton",
+                            "360° rotation capture",
+                            "Professional quality"
+                        ],
+                        badge: "RECOMMENDED",
+                        isSelected: selectedMethod == .arkit
+                    )
+                    
+                    // Vision method (fallback)
+                    captureMethodCard(
+                        method: .vision,
+                        icon: "camera.viewfinder",
+                        title: "Vision Framework",
+                        subtitle: "Good Accuracy (±2-3 cm)",
+                        features: [
+                            "17 body joints tracked",
+                            "2 static photos",
+                            "Quick capture (15 sec)",
+                            "Works on older devices"
+                        ],
+                        badge: nil,
+                        isSelected: selectedMethod == .vision
+                    )
+                }
+                .padding(.horizontal)
+                
+                Spacer()
+                
+                // Start button
+                Button(action: { showCapture = true }) {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("Start Measurement")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 30)
+            }
+            .navigationBarHidden(true)
+            .fullScreenCover(isPresented: $showCapture) {
+                if selectedMethod == .arkit {
+                    if #available(iOS 13.0, *) {
+                        ARBodyCaptureView()
+                    } else {
+                        Text("ARKit Body Tracking requires iOS 13+")
+                    }
+                } else {
+                    VisionCaptureView()
+                }
+            }
+        }
+    }
+    
+    private func captureMethodCard(
+        method: CaptureMethod,
+        icon: String,
+        title: String,
+        subtitle: String,
+        features: [String],
+        badge: String?,
+        isSelected: Bool
+    ) -> some View {
+        Button(action: { selectedMethod = method }) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Header
+                HStack {
+                    Image(systemName: icon)
+                        .font(.title)
+                        .foregroundColor(isSelected ? .blue : .gray)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title)
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        
+                        Text(subtitle)
+                            .font(.caption)
+                            .foregroundColor(isSelected ? .blue : .secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    if let badge = badge {
+                        Text(badge)
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.green)
+                            .cornerRadius(4)
+                    }
+                    
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(.title2)
+                        .foregroundColor(isSelected ? .blue : .gray)
+                }
+                
+                // Features
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(features, id: \.self) { feature in
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark")
+                                .font(.caption)
+                                .foregroundColor(isSelected ? .blue : .gray)
+                            
+                            Text(feature)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: 2)
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? Color.blue.opacity(0.05) : Color.clear)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Vision Capture View (Wrapper)
+
+struct VisionCaptureView: View {
     @StateObject private var viewModel = MeasurementViewModel()
     
     var body: some View {
@@ -58,7 +237,7 @@ struct ContentView: View {
                 }
                 .padding()
             }
-            .navigationTitle("FitTwin Measure")
+            .navigationTitle("Vision Capture")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
