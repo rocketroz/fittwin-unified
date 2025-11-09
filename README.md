@@ -64,6 +64,15 @@ The script fans out to:
 
 Press `Ctrl+C` to stop all services together. Keep this running while you work with the web apps or NativeScript shells.
 
+> The stack script now performs a preflight cleanup so you don’t inherit stray `next dev` or `ns run` processes. Tweak it via:
+> - `DEV_STACK_PREFLIGHT=0` – skip the cleanup entirely.
+> - `DEV_STACK_PORTS=3000,3001,…` / `DEV_STACK_KILL_PATTERNS="next dev,ns run"` – override what gets terminated.
+> - `DEV_STACK_MANAGE_DB=off` – opt out of automatic Postgres bootstrapping. When `DATABASE_MODE=local`, the script will otherwise run `scripts/setup_postgres_test_db.sh` (using Docker) if `pg_isready` fails so the backend always has a live database.
+> - Docker/psql are required for the automatic Postgres setup. If you don’t have Docker installed locally, set `START_DOCKER=0` (and run your own Postgres instance) to prevent the bootstrap from erroring out.
+> - We keep `.npmrc` `workspaces=true` for lint/test fans out, so `dev-stack` sets `npm_config_workspaces=false` internally when launching the frontend apps; you don’t need to do anything extra.
+
+Before running in `DATABASE_MODE=local`, execute `scripts/check_local_mode_prereqs.sh` (add `--install` to auto-install via Homebrew) to verify Node/npm versions, direnv, Docker Desktop, `libpq` CLIs, and the optional Postgres container are in place.
+
 ## Smoke tests
 
 Once the stack is healthy:
@@ -112,6 +121,37 @@ npm run ns:brand:ios        # or ns:brand:android
 ```
 
 Both shells load the lab experiences via WebView (`NS_LAB_URL` and `NS_BRAND_URL` in `stack.env`). Update those variables or edit in-app to point at alternate endpoints.
+
+> **Workspace note:** `.npmrc` sets `workspaces=true` *and* `include-workspace-root=true`. `npm run dev:stack` now calls the launcher directly, and the per-workspace `dev:stack` scripts are harmless no-ops, so you won’t see the `--no-workspaces` conflict anymore. If you need to run other root-only scripts manually, you can still scope them with `npm_config_workspaces=false npm run …` (or append `--workspaces=false`).
+> **Docker note:** Docker bootstrap is **off by default** (`START_DOCKER` defaults to `0`). If you want the script to start a local container for you, export `START_DOCKER=1` first. When Docker isn’t available (or you leave the default of `0`), the script simply assumes you have Postgres running locally on `POSTGRES_PORT` (default `54322`) and logs a warning so you know the container step was skipped.
+> **psql note:** Automatic migrations require the `psql` CLI. If it’s missing, the script skips the bootstrap entirely and logs a warning—make sure you’ve applied the schema yourself or install the PostgreSQL client (`brew install libpq && brew link --force libpq`) before re-running.
+
+NativeScript launch helpers (`scripts/run-ns.sh`, `scripts/run-ns-android.zsh`) now mirror the web preflight:
+- They kill lingering `ns run`, `xcodebuild`, Simulator, and adb processes plus the common lab ports before relaunching. Disable with `NS_PREFLIGHT=0`, or override the targets via `NS_KILL_PATTERNS` / `NS_KILL_PORTS`.
+- HMR is on by default; set `NS_ENABLE_HMR=0` or pass `--no-hmr` to fall back to the old static reload cycle.
+- The “TEST SUITES” button in the shell toggles a diagnostics panel fed by `NS_TEST_STATUS_URL`. Point this variable (or `TEST_STATUS_URL`) at an endpoint that returns a JSON object like:
+  ```json
+  {
+    "updatedAt": "2025-11-07T07:45:00Z",
+    "databaseMode": "local",
+    "endpoints": {
+      "devStack": "http://localhost:3000",
+      "measurementApi": "http://localhost:8000/api",
+      "cameraApi": "http://localhost:3100/camera"
+    },
+    "suites": [
+      { "name": "backend:test:full", "status": "pass", "durationMs": 4100 },
+      { "name": "playwright:e2e", "status": "fail", "details": "timeout on /measurements" }
+    ]
+  }
+  ```
+  The panel is off by default; tap the button to fetch and display the most recent data (raw JSON included for auditing). If the endpoint is omitted the button will show a configuration warning.
+- Use `npm run test:status` to run the default suite list and produce `test-results/status.json`. This script automatically scopes npm workspaces, captures command durations, and records the `DATABASE_MODE`. Point your backend (or any static host) at that JSON file to expose the data via HTTP (see `/diagnostics/test-status` below).
+- The collector now emits connectivity checks for the backend, measurement API, camera lab, database, and any extra endpoints defined via `TEST_STATUS_PING_ENDPOINTS` (comma-separated `label|url`). Set `TEST_STATUS_SKIP_DB_CHECK=1` if you don’t have `pg_isready` installed locally.
+
+### Diagnostics endpoint
+
+The Nest backend now exposes `GET /diagnostics/test-status`, which reads `test-results/status.json` (or any path set via `TEST_STATUS_FILE`). Host this endpoint wherever your NativeScript shell can reach it, and set `NS_TEST_STATUS_URL` to that URL. The response mirrors the JSON format shown above, so the “TEST SUITES” button can display live data pulled from your actual CLI runs.
 
 ### NativeScript dependencies
 

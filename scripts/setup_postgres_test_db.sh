@@ -20,6 +20,7 @@ POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-postgres}"
 POSTGRES_DB="${POSTGRES_DB:-postgres}"
 DATABASE_URL="${DATABASE_URL:-postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:$POSTGRES_PORT/$POSTGRES_DB}"
 START_DOCKER="${START_DOCKER:-1}"
+INCLUDE_SUPABASE_AUTH="${INCLUDE_SUPABASE_AUTH:-1}"
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -69,6 +70,68 @@ apply_sql() {
   PGPASSWORD="$POSTGRES_PASSWORD" psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$file" >/dev/null
 }
 
+ensure_extensions() {
+  echo "Ensuring required extensions (uuid-ossp, pgcrypto)..."
+  PGPASSWORD="$POSTGRES_PASSWORD" psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+SQL
+}
+
+ensure_supabase_auth_schema() {
+  if [[ "$INCLUDE_SUPABASE_AUTH" != "1" ]]; then
+    return
+  fi
+  echo "Ensuring auth schema, auth.users, and public users table..."
+  PGPASSWORD="$POSTGRES_PASSWORD" psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+CREATE SCHEMA IF NOT EXISTS auth;
+CREATE TABLE IF NOT EXISTS auth.users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE,
+  raw_app_meta_data JSONB DEFAULT '{}'::jsonb,
+  raw_user_meta_data JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE OR REPLACE FUNCTION auth.uid()
+RETURNS uuid
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT COALESCE(
+    NULLIF(current_setting('request.jwt.claim.sub', true), '')::uuid,
+    '00000000-0000-0000-0000-000000000000'::uuid
+  );
+$$;
+CREATE OR REPLACE FUNCTION auth.jwt()
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT COALESCE(
+    NULLIF(current_setting('request.jwt.claims', true), '')::jsonb,
+    '{}'::jsonb
+  );
+$$;
+CREATE TABLE IF NOT EXISTS public.users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE,
+  password_hash TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+SQL
+}
+
+reset_public_schema() {
+  echo "Resetting public schema..."
+  PGPASSWORD="$POSTGRES_PASSWORD" psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+SQL
+}
+
 # -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
@@ -81,6 +144,9 @@ else
 fi
 
 echo "Creating schema using files under $MIGRATIONS_DIR"
+reset_public_schema
+ensure_extensions
+ensure_supabase_auth_schema
 apply_sql "$MIGRATIONS_DIR/init_schema.sql"
 apply_sql "$MIGRATIONS_DIR/init_rls.sql"
 
