@@ -30,11 +30,68 @@ Each entry includes:
 
 ---
 
+## [1.1.2] - 2025-11-09
+
+### Added - GitHub Actions CI/CD
+
+**Commit**: `[pending]`  
+**Type**: Feature  
+**Author**: Manus AI Agent
+
+#### Changes
+1. **.github/workflows/ios-poc.yml** (New)
+   - iOS Xcode project validation
+   - Python measurement service validation
+   - Integration compatibility checks
+   - GitHub Secrets integration
+   - Automated testing on push to branch
+
+2. **.github/SECRETS.md** (New)
+   - Complete secrets configuration guide
+   - Step-by-step setup instructions
+   - Security best practices
+   - Troubleshooting guide
+   - Secret rotation procedures
+
+3. **CONFIGURATION.md** (Updated)
+   - Added CI/CD Integration section
+   - GitHub Actions overview
+   - Secrets configuration reference
+
+#### Impact
+- ✅ **Automated validation** on every push
+- ✅ **iOS + Python integration** verified automatically
+- ✅ **Secrets management** documented and configured
+- ✅ **CI/CD best practices** implemented
+
+#### GitHub Secrets (Optional)
+```bash
+FITWIN_API_KEY=staging-secret-key  # Default if not set
+JWT_SECRET=test-jwt-secret  # Default if not set
+SUPABASE_URL=http://localhost:54321  # Default if not set
+SUPABASE_ANON_KEY=test-anon-key  # Default if not set
+SUPABASE_SERVICE_ROLE_KEY=test-service-key  # Default if not set
+```
+
+#### Testing Status
+- [ ] Not yet tested
+- [ ] Awaiting GitHub Actions to run
+
+#### Known Issues
+- None (pending testing)
+
+#### Files Changed
+- `.github/workflows/ios-poc.yml` (new, 200 lines)
+- `.github/SECRETS.md` (new, 300 lines)
+- `CONFIGURATION.md` (modified, +30 lines)
+
+---
+
 ## [1.1.1] - 2025-11-09
 
 ### Changed - Info.plist Configuration
 
-**Commit**: `[pending]`  
+**Commit**: `98a98d49`  
 **Type**: Update  
 **Author**: Manus AI Agent
 

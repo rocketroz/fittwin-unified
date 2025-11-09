@@ -350,6 +350,38 @@ cd services/python/measurement
 
 ---
 
+## 🔄 CI/CD Integration
+
+### **GitHub Actions**
+
+The iOS POC branch has automated CI/CD via GitHub Actions (`.github/workflows/ios-poc.yml`).
+
+**What it does**:
+- ✅ Validates Xcode project builds
+- ✅ Checks Python measurement service
+- ✅ Verifies iOS-Python integration
+- ✅ Uses GitHub Secrets for API keys
+
+**Secrets Configuration**:
+
+See `.github/SECRETS.md` for complete secrets setup guide.
+
+**Required secrets** (optional, have defaults):
+- `FITWIN_API_KEY` - API authentication key
+- `JWT_SECRET` - JWT signing secret
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_ANON_KEY` - Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
+
+**Add secrets**:
+1. Go to GitHub repo **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Add each secret from the list above
+
+**Note**: Workflows use sensible defaults if secrets aren't configured, so CI works out of the box.
+
+---
+
 **Last Updated**: 2025-11-09  
 **Version**: 1.1.1  
 **Pattern**: Matches original FitTwinApp configuration
