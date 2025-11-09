@@ -80,7 +80,13 @@ class AudioGuidanceManager: ObservableObject {
     
     /// Speak text with optional haptic feedback
     func speak(_ text: String, withHaptic: Bool = false) {
-        guard isEnabled else { return }
+        print("🔊 AudioManager.speak() called: \"(text)\"")
+        print("   isEnabled: \(isEnabled), volume: \(volume)")
+        
+        guard isEnabled else {
+            print("   ❌ Audio disabled")
+            return
+        }
         
         // Prevent duplicate announcements
         if text == lastSpokenText && Date().timeIntervalSince(lastSpokenTime) < minimumRepeatInterval {
@@ -97,6 +103,7 @@ class AudioGuidanceManager: ObservableObject {
         utterance.rate = 0.5 // Slightly slower for clarity
         utterance.volume = volume
         
+        print("   ✅ Calling synthesizer.speak()")
         synthesizer.speak(utterance)
         
         lastSpokenText = text

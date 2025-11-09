@@ -47,6 +47,79 @@
 ## Development History
 
 
+### [2025-11-09 18:19] - Commit: 04ac8e42 - : Fix device testing issues: integrate audio guidance and arm validation
+
+**Branch**: feature/ios-measurement-poc  
+**Author**: rocketroz  
+**Files Changed**: 5 files (+588 -18)
+
+#### Changes
+- **Updated**: `DEVLOG.md`
+- **Added**: `mobile/ios/FitTwinMeasurePOC/DEVICE_TESTING_INSTRUCTIONS.md`
+- **Updated**: `mobile/ios/FitTwinMeasurePOC/FitTwinMeasure/ARBodyCaptureView_Enhanced.swift`
+- **Updated**: `mobile/ios/FitTwinMeasurePOC/FitTwinMeasure/ARBodyTrackingManager.swift`
+- **Updated**: `mobile/ios/FitTwinMeasurePOC/FitTwinMeasure/ContentView.swift`
+
+#### Commit Message
+```
+Fix device testing issues: integrate audio guidance and arm validation
+Critical fixes for live device testing:
+
+1. ContentView.swift: Use ARBodyCaptureView_Enhanced (not old view)
+   - Line 95: Changed ARBodyCaptureView() → ARBodyCaptureView_Enhanced()
+   - Enables audio guidance and arm position validation
+
+2. ARBodyTrackingManager.swift: Expose skeleton for validation
+   - Added @Published var currentSkeleton: ARSkeleton3D?
+   - Made arSession public (was private) for ARViewContainer
+   - Publish skeleton in didUpdate anchors delegate method
+   - Allows real-time arm position validation
+
+3. ARBodyCaptureView_Enhanced.swift: Implement real validation
+   - Added lastFeedbackTime state variable
+   - Implemented startArmValidation() with real skeleton data
+   - Audio feedback throttled to every 3 seconds
+   - Visual overlay updates based on actual arm angles
+
+4. DEVICE_TESTING_INSTRUCTIONS.md: Comprehensive testing guide
+   - Step-by-step testing procedure
+   - Troubleshooting common issues
+   - Expected measurement ranges
+   - Xcode console message interpretation
+   - Validation test protocol
+
+Key Changes:
+- Audio guidance now plays (was silent before)
+- Arm validation uses real ARKit skeleton (was commented out)
+- Back camera is CORRECT (LiDAR is on back, not front)
+- User places phone on tripod facing them (not handheld)
+
+Testing Notes:
+- ARKit Body Tracking requires back camera (has LiDAR)
+- Front/selfie camera has no LiDAR (can't do body tracking)
+- Phone must be on tripod/stand 6-8 feet away
+- User stands in front and rotates 360°
+
+Ready for device testing with audio guidance and validation!
+```
+
+#### Technical Details
+<!-- Auto-generated entry. Add technical details here. -->
+
+#### Rationale
+<!-- Add rationale for this change here. -->
+
+#### Testing
+<!-- Add testing instructions here. -->
+
+#### Related
+- Commit: 04ac8e42
+- Branch: feature/ios-measurement-poc
+
+---
+
+
+
 ### [2025-11-09 17:25] - Commit: 20fd3d05 - : Update QUICKSTART.md with Modified T-Pose instructions
 
 **Branch**: feature/ios-measurement-poc  
@@ -834,12 +907,12 @@ session.addOutput(depthOutput)
 
 ## Statistics
 
-**Total Commits**: 29  
+**Total Commits**: 30  
 **Total Files Changed**: 25  
-**Total Additions**: +115,100 lines  
-**Total Deletions**: -10,354 lines  
+**Total Additions**: +115,688 lines  
+**Total Deletions**: -10,372 lines  
 **Active Branch**: feature/ios-measurement-poc  
-**Last Updated**: 2025-11-09 17:25 UTC
+**Last Updated**: 2025-11-09 18:19 UTC
 
 ---
 
@@ -866,5 +939,5 @@ session.addOutput(depthOutput)
 
 ---
 
-**Last Entry**: 2025-11-09 17:25 UTC
+**Last Entry**: 2025-11-09 18:19 UTC
 **Next Update**: Automatic on next commit

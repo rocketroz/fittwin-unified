@@ -80,9 +80,12 @@ struct ARBodyCaptureView_Enhanced: View {
             }
         }
         .onAppear {
+            print("🎬 ARBodyCaptureView_Enhanced appeared")
             checkSupport()
         }
         .onDisappear {
+            print("👋 ARBodyCaptureView_Enhanced disappeared")
+            trackingManager.stopSession()
             audioManager.cleanup()
         }
     }
@@ -570,10 +573,17 @@ struct ARBodyCaptureView_Enhanced: View {
     // MARK: - Actions
     
     private func checkSupport() {
+        print("⚙️ Checking ARKit Body Tracking support...")
+        
         if !ARBodyTrackingManager.isSupported() {
+            print("❌ ARKit Body Tracking NOT supported")
             errorMessage = "ARKit Body Tracking is not supported on this device. Requires iPhone 12 Pro or later."
         } else {
+            print("✅ ARKit Body Tracking supported")
+            print("🚀 Starting AR session...")
             trackingManager.startSession()
+            
+            print("🔊 Announcing setup...")
             audioManager.announceSetup()
         }
     }
@@ -670,26 +680,42 @@ struct ARBodyCaptureView_Enhanced: View {
     }
     
     private func startCapture() {
+        print("📹 Starting capture...")
         captureState = .capturing
         trackingManager.startCapture()
         audioManager.announceStartRotation()
         
-        // Monitor progress for audio cues
+        // Timer-based progress (fallback if frame capture fails)
+        let startTime = Date()
         var lastProgress: Float = 0
+        
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
             guard captureState == .capturing else {
                 timer.invalidate()
                 return
             }
             
-            let progress = trackingManager.captureProgress
+            // Get frame-based progress from tracking manager
+            let frameProgress = Float(trackingManager.captureProgress)
+            
+            // Calculate timer-based progress as fallback
+            let elapsed = Date().timeIntervalSince(startTime)
+            let timerProgress = Float(min(elapsed / 30.0, 1.0))
+            
+            // Use the maximum of both (ensures progress always moves forward)
+            let progress = max(frameProgress, timerProgress)
+            
+            print("📈 Progress: frame=\(Int(frameProgress*100))%, timer=\(Int(timerProgress*100))%, display=\(Int(progress*100))%")
             
             // Announce milestones
             if lastProgress < 0.25 && progress >= 0.25 {
+                print("🎯 25% milestone")
                 audioManager.announceRotationProgress(0.25)
             } else if lastProgress < 0.50 && progress >= 0.50 {
+                print("🎯 50% milestone")
                 audioManager.announceRotationProgress(0.50)
             } else if lastProgress < 0.75 && progress >= 0.75 {
+                print("🎯 75% milestone")
                 audioManager.announceRotationProgress(0.75)
             }
             
@@ -705,7 +731,10 @@ struct ARBodyCaptureView_Enhanced: View {
     }
     
     private func stopCapture() {
+        print("⏹️ Stopping capture...")
+        
         guard let captureResult = trackingManager.stopCapture() else {
+            print("❌ Failed to capture data - no frames")
             errorMessage = "Failed to capture data. Please try again."
             audioManager.announceInsufficientData()
             captureState = .idle
