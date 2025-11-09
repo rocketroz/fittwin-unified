@@ -9,10 +9,7 @@ class MeasurementViewModel: ObservableObject {
     
     private let cameraManager = LiDARCameraManager()
     private let poseDetector = MediaPipePoseDetector()
-    private let pythonAPI = PythonMeasurementAPI(
-        baseURL: "https://your-api-url.com",  // TODO: Replace with actual URL
-        apiKey: "your-api-key"  // TODO: Replace with actual key
-    )
+    private let pythonAPI = PythonMeasurementAPI()  // Reads from Info.plist
     
     private var frontImage: UIImage?
     private var frontDepthData: AVDepthData?

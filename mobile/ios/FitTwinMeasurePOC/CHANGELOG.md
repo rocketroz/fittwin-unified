@@ -30,6 +30,73 @@ Each entry includes:
 
 ---
 
+## [1.1.1] - 2025-11-09
+
+### Changed - Info.plist Configuration
+
+**Commit**: `[pending]`  
+**Type**: Update  
+**Author**: Manus AI Agent
+
+#### Changes
+1. **Info.plist** (Updated)
+   - Added `FITWIN_API_URL` key (default: `http://127.0.0.1:8000`)
+   - Added `FITWIN_API_KEY` key (default: `staging-secret-key`)
+   - Added `NSAppTransportSecurity` to allow HTTP for local dev
+   - Matches original FitTwinApp configuration pattern
+
+2. **PythonMeasurementAPI.swift** (Updated)
+   - Changed `init()` to read from Info.plist
+   - Added console logging of loaded configuration
+   - Kept custom `init(baseURL:apiKey:)` for testing
+   - Removed hardcoded TODO comments
+
+3. **MeasurementViewModel.swift** (Updated)
+   - Simplified API initialization to `PythonMeasurementAPI()`
+   - Removed hardcoded URL and key parameters
+
+4. **CONFIGURATION.md** (New)
+   - Complete configuration guide
+   - Info.plist editing instructions
+   - Multiple configuration scenarios
+   - Troubleshooting guide
+   - Security best practices
+
+5. **TESTING_GUIDE.md** (Updated)
+   - Updated Step 3 to edit Info.plist instead of Swift code
+   - Added reference to CONFIGURATION.md
+
+#### Impact
+- ✅ **Easier configuration** - No code changes needed
+- ✅ **Matches original app** - Same pattern as FitTwinApp
+- ✅ **Better security** - API keys not in source code
+- ✅ **Build configurations** - Can use Debug/Release configs
+
+#### Configuration Required
+```xml
+<!-- In Info.plist -->
+<key>FITWIN_API_URL</key>
+<string>http://YOUR_MAC_IP:8000</string>
+<key>FITWIN_API_KEY</key>
+<string>staging-secret-key</string>
+```
+
+#### Testing Status
+- [ ] Not yet tested
+- [ ] Awaiting user configuration and testing
+
+#### Known Issues
+- None (pending testing)
+
+#### Files Changed
+- `FitTwinMeasure/Info.plist` (modified, +8 lines)
+- `FitTwinMeasure/PythonMeasurementAPI.swift` (modified, +11 lines, -2 lines)
+- `FitTwinMeasure/MeasurementViewModel.swift` (modified, -4 lines, +1 line)
+- `CONFIGURATION.md` (new, 400 lines)
+- `TESTING_GUIDE.md` (modified, +10 lines, -15 lines)
+
+---
+
 ## [1.1.0] - 2025-11-09
 
 ### Added - MediaPipe Integration

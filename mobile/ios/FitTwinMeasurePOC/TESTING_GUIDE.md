@@ -104,25 +104,29 @@ ipconfig getifaddr en0
 
 ### **Step 3: Configure iOS App**
 
-**Edit**: `mobile/ios/FitTwinMeasurePOC/FitTwinMeasure/MeasurementViewModel.swift`
+**Edit**: `mobile/ios/FitTwinMeasurePOC/FitTwinMeasure/Info.plist`
 
-**Find** (lines 11-14):
-```swift
-private let pythonAPI = PythonMeasurementAPI(
-    baseURL: "https://your-api-url.com",  // TODO: Replace with actual URL
-    apiKey: "your-api-key"  // TODO: Replace with actual key
-)
+**Find**:
+```xml
+<key>FITWIN_API_URL</key>
+<string>http://127.0.0.1:8000</string>
 ```
 
 **Replace with**:
-```swift
-private let pythonAPI = PythonMeasurementAPI(
-    baseURL: "http://192.168.1.100:8000",  // Your Mac's IP from Step 2
-    apiKey: "staging-secret-key"           // Default API key from config.py
-)
+```xml
+<key>FITWIN_API_URL</key>
+<string>http://192.168.1.100:8000</string>  <!-- Your Mac's IP from Step 2 -->
+```
+
+**Keep default API key**:
+```xml
+<key>FITWIN_API_KEY</key>
+<string>staging-secret-key</string>  <!-- Matches Python service default -->
 ```
 
 **Save the file**.
+
+**Note**: See **CONFIGURATION.md** for detailed configuration options.
 
 ---
 

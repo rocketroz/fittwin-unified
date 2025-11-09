@@ -8,7 +8,20 @@ class PythonMeasurementAPI {
     private let baseURL: String
     private let apiKey: String
     
-    init(baseURL: String = "https://your-api-url.com", apiKey: String = "your-api-key") {
+    init() {
+        // Read from Info.plist (same pattern as original FitTwinApp)
+        let bundle = Bundle.main
+        let baseURLString = bundle.object(forInfoDictionaryKey: "FITWIN_API_URL") as? String ?? "http://127.0.0.1:8000"
+        self.baseURL = baseURLString
+        self.apiKey = bundle.object(forInfoDictionaryKey: "FITWIN_API_KEY") as? String ?? "staging-secret-key"
+        
+        print("⚙️ API Configuration:")
+        print("   Base URL: \(baseURL)")
+        print("   API Key: \(apiKey.prefix(8))...")
+    }
+    
+    // For testing with custom values
+    init(baseURL: String, apiKey: String) {
         self.baseURL = baseURL
         self.apiKey = apiKey
     }
