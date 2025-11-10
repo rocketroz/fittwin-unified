@@ -4,7 +4,7 @@ import SwiftUI
 struct FitTwinMeasureApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView_New()
         }
     }
 }
