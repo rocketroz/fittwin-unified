@@ -80,11 +80,18 @@ class PythonMeasurementAPI {
         let outseam_cm: Double?
     }
     
+    struct PoseSnapshot {
+        let landmarks: [BodyLandmark]
+        let timestamp: Date
+        let imageWidth: Int
+        let imageHeight: Int
+    }
+    
     // MARK: - API Methods
     
     func validateMeasurements(
-        frontPose: MediaPipePoseDetector.PoseResult,
-        sidePose: MediaPipePoseDetector.PoseResult,
+        frontPose: PoseSnapshot,
+        sidePose: PoseSnapshot,
         sessionId: String = UUID().uuidString
     ) async throws -> MeasurementResponse {
         

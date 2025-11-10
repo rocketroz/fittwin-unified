@@ -83,7 +83,7 @@ class ArmPositionValidator {
               let leftHand = getJoint(.leftHand, from: skeleton),
               let rightShoulder = getJoint(.rightShoulder, from: skeleton),
               let rightHand = getJoint(.rightHand, from: skeleton),
-              let spine = getJoint(.spine, from: skeleton) else {
+              let spine = getJoint(.root, from: skeleton) else {
             return ValidationResult(
                 timestamp: timestamp,
                 isValid: false,
@@ -211,14 +211,16 @@ class ArmPositionValidator {
     // MARK: - Helper Methods
     
     private func getJoint(_ name: ARSkeleton.JointName, from skeleton: ARSkeleton3D) -> (position: simd_float3, confidence: Float)? {
-        guard skeleton.isJointTracked(name) else {
+        let jointIndex = ARSkeletonDefinition.defaultBody3D.index(for: name)
+        
+        guard skeleton.isJointTracked(jointIndex),
+              let transform = skeleton.modelTransform(for: name) else {
             return nil
         }
         
-        let transform = skeleton.modelTransform(for: name)
-        let position = simd_float3(transform?.columns.3.x ?? 0,
-                                   transform?.columns.3.y ?? 0,
-                                   transform?.columns.3.z ?? 0)
+        let position = simd_float3(transform.columns.3.x,
+                                   transform.columns.3.y,
+                                   transform.columns.3.z)
         
         // ARKit doesn't provide explicit confidence, so we estimate based on tracking
         let confidence: Float = 0.9 // Assume high confidence if tracked

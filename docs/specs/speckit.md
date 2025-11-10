@@ -840,7 +840,7 @@ def recommend_sizes(normalized_measurements: dict) -> dict:
 
 Define the five agents (CEO, Architect, ML Engineer, DevOps, Reviewer) with specific directives aligned to the DMaaS MVP strategy.
 
-**File:** `agents/crew/measurement_crew.py` (NEW)
+**File:** `ai/crewai/crew/measurement_crew.py` (NEW)
 
 ```python
 import os
@@ -1925,4 +1925,3 @@ type CaptureStep =
 - Adjustable countdown duration (5, 10, 15 seconds)
 - Pose quality feedback before capture
 - Option to skip countdown for experienced users
-

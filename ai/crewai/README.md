@@ -41,7 +41,7 @@ After the environment is ready, choose your launcher:
 	```bash
 	export OPENAI_API_KEY="sk-..."
 	export AGENT_MODEL="gpt-4o-mini"  # optional
-	python agents/crew/bootstrap.py
+	python3 -m ai.crewai.crew.bootstrap
 	```
 
 - **Helper script (preferred)**
@@ -49,12 +49,12 @@ After the environment is ready, choose your launcher:
 	```bash
 	export OPENAI_API_KEY="sk-..."
 	export AGENT_MODEL="gpt-4o-mini"  # optional
-	./scripts/run_agents_env.sh
+	services/python/measurement/scripts/run_agents_env.sh
 	```
 
-	The helper script activates `.venv-agents`, verifies the key, and then runs `agents/crew/bootstrap.py`.
+	The helper script activates `.venv-agents`, verifies the key, and then runs `python3 -m ai.crewai.crew.bootstrap`.
 
-Extend `agents/crew/`, `agents/prompts/`, and `agents/tools/` as needed; the shipped scaffold is deliberately minimal.
+Extend `ai/crewai/crew/`, `ai/crewai/prompts/`, and `ai/crewai/tools/` as needed; the shipped scaffold is deliberately minimal.
 
 ## 4. About the GitHub Actions linter warning
 

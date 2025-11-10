@@ -4,5 +4,5 @@
 
 import importlib
 
-importlib.import_module("agents.crew.bootstrap")  # noqa: F401
-print("Agents import OK")
+importlib.import_module("ai.crewai.crew.bootstrap")  # noqa: F401
+print("CrewAI import OK")

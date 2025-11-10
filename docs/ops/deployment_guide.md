@@ -60,7 +60,7 @@ uvicorn backend.app.main:app --reload
 Run the agents:
 
 ```bash
-python agents/crew/measurement_crew.py
+python ai/crewai/crew/measurement_crew.py
 ```
 
 ## 3. Testing

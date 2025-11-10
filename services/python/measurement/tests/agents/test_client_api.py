@@ -1,5 +1,6 @@
 from unittest.mock import patch
-from agents.client.api import dmaas_latest
+
+from ai.crewai.client.api import dmaas_latest
 
 class _DummyResponse:
     def __init__(self, payload): self._p = payload

@@ -19,7 +19,7 @@ class ARBodyTrackingManager: NSObject, ObservableObject {
     
     @Published var isSessionRunning = false
     @Published var isBodyDetected = false
-    @Published var trackingQuality: ARFrame.WorldTrackingState.Reason? = nil
+    @Published var trackingQuality: ARCamera.TrackingState.Reason? = nil
     @Published var captureProgress: Double = 0.0
     @Published var currentRotationAngle: Double = 0.0
     @Published var currentSkeleton: ARSkeleton3D?  // For arm position validation
@@ -208,10 +208,10 @@ class ARBodyTrackingManager: NSObject, ObservableObject {
         var joints: [String: simd_float4x4] = [:]
         
         for jointName in ARSkeletonDefinition.defaultBody3D.jointNames {
-            if let jointIndex = ARSkeletonDefinition.defaultBody3D.index(for: ARSkeleton.JointName(rawValue: jointName)) {
-                let jointTransform = skeleton.jointModelTransforms[jointIndex]
-                joints[jointName] = jointTransform
-            }
+            let joint = ARSkeleton.JointName(rawValue: jointName)
+            let jointIndex = ARSkeletonDefinition.defaultBody3D.index(for: joint)
+            let jointTransform = skeleton.jointModelTransforms[jointIndex]
+            joints[jointName] = jointTransform
         }
         
         return BodySkeleton(

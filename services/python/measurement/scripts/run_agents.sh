@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 cd "$REPO_ROOT"
+
 if [ ! -d ".venv-agents" ]; then
   echo "Missing .venv-agents. Create it with Python 3.11 and install crewai, openai, python-dotenv."
   exit 1
@@ -11,4 +14,4 @@ if [ -z "${OPENAI_API_KEY:-}" ]; then
   exit 1
 fi
 source .venv-agents/bin/activate
-python agents/crew/bootstrap.py
+python3 -m ai.crewai.crew.bootstrap

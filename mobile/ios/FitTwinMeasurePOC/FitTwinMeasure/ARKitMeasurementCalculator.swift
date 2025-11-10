@@ -132,10 +132,10 @@ class ARKitMeasurementCalculator {
         var points: [Point3D] = []
         
         // Sample every Nth pixel to reduce point count
-        let stride = 4
+        let pixelStride = 4
         
-        for y in stride(from: 0, to: height, by: stride) {
-            for x in stride(from: 0, to: width, by: stride) {
+        for y in stride(from: 0, to: height, by: pixelStride) {
+            for x in stride(from: 0, to: width, by: pixelStride) {
                 let index = y * width + x
                 let depth = floatBuffer[index]
                 
@@ -176,7 +176,7 @@ class ARKitMeasurementCalculator {
             return 0
         }
         
-        let height = abs(headPos.y - footPos.y) * 100.0  // Convert to cm
+        let height = Double(abs(headPos.y - footPos.y)) * 100.0  // Convert to cm
         
         print("   Height: \(String(format: "%.1f", height)) cm")
         return height
@@ -188,7 +188,7 @@ class ARKitMeasurementCalculator {
             return 0
         }
         
-        let width = simd_distance(leftShoulder, rightShoulder) * 100.0  // Convert to cm
+        let width = Double(simd_distance(leftShoulder, rightShoulder)) * 100.0  // Convert to cm
         
         print("   Shoulder Width: \(String(format: "%.1f", width)) cm")
         return width
@@ -200,11 +200,11 @@ class ARKitMeasurementCalculator {
         }
         
         // Extract horizontal slice at chest height
-        let chestHeight = chestJoint.y
-        let sliceThickness: Float = 0.05  // 5cm slice
+        let chestHeight = Double(chestJoint.y)
+        let sliceThickness: Double = 0.05  // 5cm slice
         
         let chestSlice = pointCloud.filter { point in
-            abs(Float(point.y) - chestHeight) < sliceThickness
+            abs(point.y - chestHeight) < sliceThickness
         }
         
         guard !chestSlice.isEmpty else {
@@ -247,11 +247,11 @@ class ARKitMeasurementCalculator {
             return 0
         }
         
-        let hipHeight = hipJoint.y
-        let sliceThickness: Float = 0.05
+        let hipHeight = Double(hipJoint.y)
+        let sliceThickness: Double = 0.05
         
         let hipSlice = pointCloud.filter { point in
-            abs(Float(point.y) - hipHeight) < sliceThickness
+            abs(point.y - hipHeight) < sliceThickness
         }
         
         guard !hipSlice.isEmpty else {
@@ -271,7 +271,7 @@ class ARKitMeasurementCalculator {
             return 0
         }
         
-        let inseam = simd_distance(hipJoint, ankleJoint) * 100.0
+        let inseam = Double(simd_distance(hipJoint, ankleJoint)) * 100.0
         
         print("   Inseam: \(String(format: "%.1f", inseam)) cm")
         return inseam
@@ -283,7 +283,7 @@ class ARKitMeasurementCalculator {
             return 0
         }
         
-        let outseam = simd_distance(waistJoint, ankleJoint) * 100.0
+        let outseam = Double(simd_distance(waistJoint, ankleJoint)) * 100.0
         
         print("   Outseam: \(String(format: "%.1f", outseam)) cm")
         return outseam
@@ -295,7 +295,7 @@ class ARKitMeasurementCalculator {
             return 0
         }
         
-        let sleeveLength = simd_distance(shoulderJoint, wristJoint) * 100.0
+        let sleeveLength = Double(simd_distance(shoulderJoint, wristJoint)) * 100.0
         
         print("   Sleeve Length: \(String(format: "%.1f", sleeveLength)) cm")
         return sleeveLength
@@ -306,11 +306,11 @@ class ARKitMeasurementCalculator {
             return 0
         }
         
-        let neckHeight = neckJoint.y
-        let sliceThickness: Float = 0.03  // 3cm slice (neck is smaller)
+        let neckHeight = Double(neckJoint.y)
+        let sliceThickness: Double = 0.03  // 3cm slice (neck is smaller)
         
         let neckSlice = pointCloud.filter { point in
-            abs(Float(point.y) - neckHeight) < sliceThickness
+            abs(point.y - neckHeight) < sliceThickness
         }
         
         guard !neckSlice.isEmpty else {
@@ -332,18 +332,18 @@ class ARKitMeasurementCalculator {
         
         // Bicep is at midpoint between shoulder and elbow
         let bicepPos = (shoulderJoint + elbowJoint) / 2.0
-        let bicepHeight = bicepPos.y
-        let sliceThickness: Float = 0.03
+        let bicepHeight = Double(bicepPos.y)
+        let sliceThickness: Double = 0.03
         
         let bicepSlice = pointCloud.filter { point in
-            abs(Float(point.y) - bicepHeight) < sliceThickness &&
-            abs(Float(point.x) - bicepPos.x) < 0.1 &&  // Near arm
-            abs(Float(point.z) - bicepPos.z) < 0.1
+            abs(point.y - bicepHeight) < sliceThickness &&
+            abs(point.x - Double(bicepPos.x)) < 0.1 &&  // Near arm
+            abs(point.z - Double(bicepPos.z)) < 0.1
         }
         
         guard !bicepSlice.isEmpty else {
             print("   ⚠️ No points found at bicep, using approximation")
-            let armLength = simd_distance(shoulderJoint, elbowJoint) * 100.0
+            let armLength = Double(simd_distance(shoulderJoint, elbowJoint)) * 100.0
             return armLength * 0.4  // Approximate from bone length
         }
         
@@ -360,18 +360,18 @@ class ARKitMeasurementCalculator {
         }
         
         let forearmPos = (elbowJoint + wristJoint) / 2.0
-        let forearmHeight = forearmPos.y
-        let sliceThickness: Float = 0.03
+        let forearmHeight = Double(forearmPos.y)
+        let sliceThickness: Double = 0.03
         
         let forearmSlice = pointCloud.filter { point in
-            abs(Float(point.y) - forearmHeight) < sliceThickness &&
-            abs(Float(point.x) - forearmPos.x) < 0.1 &&
-            abs(Float(point.z) - forearmPos.z) < 0.1
+            abs(point.y - forearmHeight) < sliceThickness &&
+            abs(point.x - Double(forearmPos.x)) < 0.1 &&
+            abs(point.z - Double(forearmPos.z)) < 0.1
         }
         
         guard !forearmSlice.isEmpty else {
             print("   ⚠️ No points found at forearm, using approximation")
-            let forearmLength = simd_distance(elbowJoint, wristJoint) * 100.0
+            let forearmLength = Double(simd_distance(elbowJoint, wristJoint)) * 100.0
             return forearmLength * 0.35
         }
         
@@ -388,18 +388,18 @@ class ARKitMeasurementCalculator {
         }
         
         let thighPos = (hipJoint + kneeJoint) / 2.0
-        let thighHeight = thighPos.y
-        let sliceThickness: Float = 0.05
+        let thighHeight = Double(thighPos.y)
+        let sliceThickness: Double = 0.05
         
         let thighSlice = pointCloud.filter { point in
-            abs(Float(point.y) - thighHeight) < sliceThickness &&
-            abs(Float(point.x) - thighPos.x) < 0.15 &&
-            abs(Float(point.z) - thighPos.z) < 0.15
+            abs(point.y - thighHeight) < sliceThickness &&
+            abs(point.x - Double(thighPos.x)) < 0.15 &&
+            abs(point.z - Double(thighPos.z)) < 0.15
         }
         
         guard !thighSlice.isEmpty else {
             print("   ⚠️ No points found at thigh, using approximation")
-            let thighLength = simd_distance(hipJoint, kneeJoint) * 100.0
+            let thighLength = Double(simd_distance(hipJoint, kneeJoint)) * 100.0
             return thighLength * 0.5
         }
         
@@ -416,18 +416,18 @@ class ARKitMeasurementCalculator {
         }
         
         let calfPos = (kneeJoint + ankleJoint) / 2.0
-        let calfHeight = calfPos.y
-        let sliceThickness: Float = 0.05
+        let calfHeight = Double(calfPos.y)
+        let sliceThickness: Double = 0.05
         
         let calfSlice = pointCloud.filter { point in
-            abs(Float(point.y) - calfHeight) < sliceThickness &&
-            abs(Float(point.x) - calfPos.x) < 0.15 &&
-            abs(Float(point.z) - calfPos.z) < 0.15
+            abs(point.y - calfHeight) < sliceThickness &&
+            abs(point.x - Double(calfPos.x)) < 0.15 &&
+            abs(point.z - Double(calfPos.z)) < 0.15
         }
         
         guard !calfSlice.isEmpty else {
             print("   ⚠️ No points found at calf, using approximation")
-            let calfLength = simd_distance(kneeJoint, ankleJoint) * 100.0
+            let calfLength = Double(simd_distance(kneeJoint, ankleJoint)) * 100.0
             return calfLength * 0.45
         }
         
@@ -477,20 +477,4 @@ struct Point3D {
     let x: Double
     let y: Double
     let z: Double
-}
-
-struct BodyMeasurements {
-    let height_cm: Double
-    let shoulder_width_cm: Double
-    let chest_cm: Double
-    let waist_natural_cm: Double
-    let hip_low_cm: Double
-    let inseam_cm: Double
-    let outseam_cm: Double
-    let sleeve_length_cm: Double
-    let neck_cm: Double
-    let bicep_cm: Double
-    let forearm_cm: Double
-    let thigh_cm: Double
-    let calf_cm: Double
 }

@@ -685,10 +685,9 @@ struct ARBodyCaptureView_Enhanced: View {
         trackingManager.startCapture()
         audioManager.announceStartRotation()
         
-        // Timer-based progress (fallback if frame capture fails)
+        // Timer-based progress fallback (ensures movement even if frames drop)
         let startTime = Date()
-        var lastProgress: Float = 0
-        
+        var lastProgress: Double = 0
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
             guard captureState == .capturing else {
                 timer.invalidate()
@@ -696,16 +695,16 @@ struct ARBodyCaptureView_Enhanced: View {
             }
             
             // Get frame-based progress from tracking manager
-            let frameProgress = Float(trackingManager.captureProgress)
+            let frameProgress = trackingManager.captureProgress
             
             // Calculate timer-based progress as fallback
             let elapsed = Date().timeIntervalSince(startTime)
-            let timerProgress = Float(min(elapsed / 30.0, 1.0))
+            let timerProgress = min(elapsed / 30.0, 1.0)
             
             // Use the maximum of both (ensures progress always moves forward)
             let progress = max(frameProgress, timerProgress)
             
-            print("📈 Progress: frame=\(Int(frameProgress*100))%, timer=\(Int(timerProgress*100))%, display=\(Int(progress*100))%")
+            print("📈 Progress: frame=\(Int(frameProgress * 100))%, timer=\(Int(timerProgress * 100))%, display=\(Int(progress * 100))%")
             
             // Announce milestones
             if lastProgress < 0.25 && progress >= 0.25 {

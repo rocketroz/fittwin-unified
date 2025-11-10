@@ -7,28 +7,41 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10001 /* FitTwinMeasureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10002 /* FitTwinMeasureApp.swift */; };
-		A10003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10004 /* ContentView.swift */; };
-		A10005 /* MeasurementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10006 /* MeasurementViewModel.swift */; };
-		A10007 /* MeasurementCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10008 /* MeasurementCalculator.swift */; };
-		A10009 /* LiDARCameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10010 /* LiDARCameraManager.swift */; };
-		A10011 /* PoseDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10012 /* PoseDetector.swift */; };
-		A10013 /* PythonMeasurementAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10014 /* PythonMeasurementAPI.swift */; };
+		1C1F6C0C2B8E4C350046C4D9 /* FitTwinMeasureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C0B2B8E4C350046C4D9 /* FitTwinMeasureApp.swift */; };
+		1C1F6C0E2B8E4C350046C4D9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C0D2B8E4C350046C4D9 /* ContentView.swift */; };
+		1C1F6C102B8E4C350046C4D9 /* MeasurementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C0F2B8E4C350046C4D9 /* MeasurementViewModel.swift */; };
+		1C1F6C122B8E4C350046C4D9 /* MeasurementCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C112B8E4C350046C4D9 /* MeasurementCalculator.swift */; };
+		1C1F6C142B8E4C350046C4D9 /* LiDARCameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C132B8E4C350046C4D9 /* LiDARCameraManager.swift */; };
+		1C1F6C162B8E4C350046C4D9 /* PoseDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C152B8E4C350046C4D9 /* PoseDetector.swift */; };
+		1C1F6C182B8E4C350046C4D9 /* PythonMeasurementAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C172B8E4C350046C4D9 /* PythonMeasurementAPI.swift */; };
+		1C1F6C1A2B8E4C6C0046C4D9 /* ARBodyCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C1F2B8E4C860046C4D9 /* ARBodyCaptureView.swift */; };
+		1C1F6C1B2B8E4C6C0046C4D9 /* ARBodyCaptureView_Enhanced.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C202B8E4C860046C4D9 /* ARBodyCaptureView_Enhanced.swift */; };
+		1C1F6C1C2B8E4C6C0046C4D9 /* ARBodyTrackingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C212B8E4C860046C4D9 /* ARBodyTrackingManager.swift */; };
+		1C1F6C1D2B8E4C6C0046C4D9 /* ARKitMeasurementCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C222B8E4C860046C4D9 /* ARKitMeasurementCalculator.swift */; };
+		1C1F6C1E2B8E4C6C0046C4D9 /* ArmPositionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C232B8E4C860046C4D9 /* ArmPositionValidator.swift */; };
+		1C1F6C242B8E4C6C0046C4D9 /* AudioGuidanceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F6C242B8E4C860046C4D9 /* AudioGuidanceManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A10002 /* FitTwinMeasureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitTwinMeasureApp.swift; sourceTree = "<group>"; };
-		A10004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		A10006 /* MeasurementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementViewModel.swift; sourceTree = "<group>"; };
-		A10008 /* MeasurementCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementCalculator.swift; sourceTree = "<group>"; };
-		A10010 /* LiDARCameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiDARCameraManager.swift; sourceTree = "<group>"; };
-		A10011 /* FitTwinMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitTwinMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A10012 /* PoseDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseDetector.swift; sourceTree = "<group>"; };
-		A10014 /* PythonMeasurementAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythonMeasurementAPI.swift; sourceTree = "<group>"; };
+		1C1F6C032B8E4C140046C4D9 /* FitTwinMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitTwinMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1C1F6C0B2B8E4C350046C4D9 /* FitTwinMeasureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitTwinMeasureApp.swift; sourceTree = "<group>"; };
+		1C1F6C0D2B8E4C350046C4D9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1C1F6C0F2B8E4C350046C4D9 /* MeasurementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementViewModel.swift; sourceTree = "<group>"; };
+		1C1F6C112B8E4C350046C4D9 /* MeasurementCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementCalculator.swift; sourceTree = "<group>"; };
+		1C1F6C132B8E4C350046C4D9 /* LiDARCameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiDARCameraManager.swift; sourceTree = "<group>"; };
+		1C1F6C152B8E4C350046C4D9 /* PoseDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseDetector.swift; sourceTree = "<group>"; };
+		1C1F6C172B8E4C350046C4D9 /* PythonMeasurementAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythonMeasurementAPI.swift; sourceTree = "<group>"; };
+		1C1F6C1F2B8E4C860046C4D9 /* ARBodyCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARBodyCaptureView.swift; sourceTree = "<group>"; };
+		1C1F6C202B8E4C860046C4D9 /* ARBodyCaptureView_Enhanced.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARBodyCaptureView_Enhanced.swift; sourceTree = "<group>"; };
+		1C1F6C212B8E4C860046C4D9 /* ARBodyTrackingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARBodyTrackingManager.swift; sourceTree = "<group>"; };
+		1C1F6C222B8E4C860046C4D9 /* ARKitMeasurementCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARKitMeasurementCalculator.swift; sourceTree = "<group>"; };
+		1C1F6C232B8E4C860046C4D9 /* ArmPositionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArmPositionValidator.swift; sourceTree = "<group>"; };
+		1C1F6C242B8E4C860046C4D9 /* AudioGuidanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioGuidanceManager.swift; sourceTree = "<group>"; };
+		1C1F6C252B8E4C860046C4D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A10012 /* Frameworks */ = {
+		1C1F6BF92B8E4BEB0046C4D9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -38,32 +51,39 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A10013 = {
+		1C1F6BEF2B8E4BEB0046C4D9 = {
 			isa = PBXGroup;
 			children = (
-				A10014 /* FitTwinMeasure */,
-				A10015 /* Products */,
+				1C1F6BF02B8E4BEB0046C4D9 /* FitTwinMeasure */,
+				1C1F6BF22B8E4BEB0046C4D9 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A10014 /* FitTwinMeasure */ = {
+		1C1F6BF02B8E4BEB0046C4D9 /* FitTwinMeasure */ = {
 			isa = PBXGroup;
 			children = (
-				A10002 /* FitTwinMeasureApp.swift */,
-				A10004 /* ContentView.swift */,
-				A10006 /* MeasurementViewModel.swift */,
-				A10008 /* MeasurementCalculator.swift */,
-				A10010 /* LiDARCameraManager.swift */,
-				A10012 /* PoseDetector.swift */,
-				A10014 /* PythonMeasurementAPI.swift */,
+				1C1F6C0B2B8E4C350046C4D9 /* FitTwinMeasureApp.swift */,
+				1C1F6C0D2B8E4C350046C4D9 /* ContentView.swift */,
+				1C1F6C0F2B8E4C350046C4D9 /* MeasurementViewModel.swift */,
+				1C1F6C112B8E4C350046C4D9 /* MeasurementCalculator.swift */,
+				1C1F6C132B8E4C350046C4D9 /* LiDARCameraManager.swift */,
+				1C1F6C152B8E4C350046C4D9 /* PoseDetector.swift */,
+				1C1F6C172B8E4C350046C4D9 /* PythonMeasurementAPI.swift */,
+				1C1F6C1F2B8E4C860046C4D9 /* ARBodyCaptureView.swift */,
+				1C1F6C202B8E4C860046C4D9 /* ARBodyCaptureView_Enhanced.swift */,
+				1C1F6C212B8E4C860046C4D9 /* ARBodyTrackingManager.swift */,
+				1C1F6C222B8E4C860046C4D9 /* ARKitMeasurementCalculator.swift */,
+				1C1F6C232B8E4C860046C4D9 /* ArmPositionValidator.swift */,
+				1C1F6C242B8E4C860046C4D9 /* AudioGuidanceManager.swift */,
+				1C1F6C252B8E4C860046C4D9 /* Info.plist */,
 			);
 			path = FitTwinMeasure;
 			sourceTree = "<group>";
 		};
-		A10015 /* Products */ = {
+		1C1F6BF22B8E4BEB0046C4D9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A10011 /* FitTwinMeasure.app */,
+				1C1F6C032B8E4C140046C4D9 /* FitTwinMeasure.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,12 +91,12 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A10016 /* FitTwinMeasure */ = {
+		1C1F6BF82B8E4BEB0046C4D9 /* FitTwinMeasure */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A10017 /* Build configuration list for PBXNativeTarget "FitTwinMeasure" */;
+			buildConfigurationList = 1C1F6C062B8E4C140046C4D9 /* Build configuration list for PBXNativeTarget "FitTwinMeasure" */;
 			buildPhases = (
-				A10018 /* Sources */,
-				A10012 /* Frameworks */,
+				1C1F6BF92B8E4BEB0046C4D9 /* Frameworks */,
+				1C1F6BF72B8E4BEB0046C4D9 /* Sources */,
 			);
 			buildRules = (
 			);
@@ -84,61 +104,67 @@
 			);
 			name = FitTwinMeasure;
 			productName = FitTwinMeasure;
-			productReference = A10011 /* FitTwinMeasure.app */;
+			productReference = 1C1F6C032B8E4C140046C4D9 /* FitTwinMeasure.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A10019 /* Project object */ = {
+		1C1F6BF32B8E4BEB0046C4D9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 			};
-			buildConfigurationList = A10020 /* Build configuration list for PBXProject "FitTwinMeasure" */;
+			buildConfigurationList = 1C1F6BF62B8E4BEB0046C4D9 /* Build configuration list for PBXProject "FitTwinMeasure" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = A10013;
-			productRefGroup = A10015 /* Products */;
+			mainGroup = 1C1F6BEF2B8E4BEB0046C4D9;
+			productRefGroup = 1C1F6BF22B8E4BEB0046C4D9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A10016 /* FitTwinMeasure */,
+				1C1F6BF82B8E4BEB0046C4D9 /* FitTwinMeasure */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A10018 /* Sources */ = {
+		1C1F6BF72B8E4BEB0046C4D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10001 /* FitTwinMeasureApp.swift in Sources */,
-				A10003 /* ContentView.swift in Sources */,
-				A10005 /* MeasurementViewModel.swift in Sources */,
-				A10007 /* MeasurementCalculator.swift in Sources */,
-				A10009 /* LiDARCameraManager.swift in Sources */,
-				A10011 /* PoseDetector.swift in Sources */,
-				A10013 /* PythonMeasurementAPI.swift in Sources */,
+				1C1F6C242B8E4C6C0046C4D9 /* AudioGuidanceManager.swift in Sources */,
+				1C1F6C1E2B8E4C6C0046C4D9 /* ArmPositionValidator.swift in Sources */,
+				1C1F6C1C2B8E4C6C0046C4D9 /* ARBodyTrackingManager.swift in Sources */,
+				1C1F6C1B2B8E4C6C0046C4D9 /* ARBodyCaptureView_Enhanced.swift in Sources */,
+				1C1F6C1D2B8E4C6C0046C4D9 /* ARKitMeasurementCalculator.swift in Sources */,
+				1C1F6C1A2B8E4C6C0046C4D9 /* ARBodyCaptureView.swift in Sources */,
+				1C1F6C122B8E4C350046C4D9 /* MeasurementCalculator.swift in Sources */,
+				1C1F6C142B8E4C350046C4D9 /* LiDARCameraManager.swift in Sources */,
+				1C1F6C0C2B8E4C350046C4D9 /* FitTwinMeasureApp.swift in Sources */,
+				1C1F6C0E2B8E4C350046C4D9 /* ContentView.swift in Sources */,
+				1C1F6C162B8E4C350046C4D9 /* PoseDetector.swift in Sources */,
+				1C1F6C102B8E4C350046C4D9 /* MeasurementViewModel.swift in Sources */,
+				1C1F6C182B8E4C350046C4D9 /* PythonMeasurementAPI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		A10021 /* Debug */ = {
+		1C1F6C042B8E4C140046C4D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 39MVLNH773;
 				INFOPLIST_FILE = FitTwinMeasure/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -148,18 +174,20 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.fittwin.measure;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		A10022 /* Release */ = {
+		1C1F6C052B8E4C140046C4D9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 39MVLNH773;
 				INFOPLIST_FILE = FitTwinMeasure/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -169,6 +197,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.fittwin.measure;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -177,25 +207,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A10017 /* Build configuration list for PBXNativeTarget "FitTwinMeasure" */ = {
+		1C1F6BF62B8E4BEB0046C4D9 /* Build configuration list for PBXProject "FitTwinMeasure" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A10021 /* Debug */,
-				A10022 /* Release */,
+				1C1F6C042B8E4C140046C4D9 /* Debug */,
+				1C1F6C052B8E4C140046C4D9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A10020 /* Build configuration list for PBXProject "FitTwinMeasure" */ = {
+		1C1F6C062B8E4C140046C4D9 /* Build configuration list for PBXNativeTarget "FitTwinMeasure" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A10021 /* Debug */,
-				A10022 /* Release */,
+				1C1F6C042B8E4C140046C4D9 /* Debug */,
+				1C1F6C052B8E4C140046C4D9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A10019 /* Project object */;
+	rootObject = 1C1F6BF32B8E4BEB0046C4D9 /* Project object */;
 }

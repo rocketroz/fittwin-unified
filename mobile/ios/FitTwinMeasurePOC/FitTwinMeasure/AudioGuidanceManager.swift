@@ -8,6 +8,7 @@
 
 import AVFoundation
 import CoreHaptics
+import UIKit
 
 /// Manages audio guidance and haptic feedback for measurement capture
 @MainActor
@@ -227,7 +228,7 @@ class AudioGuidanceManager: ObservableObject {
         speak("Begin rotating slowly to your left.", withHaptic: true)
     }
     
-    func announceRotationProgress(_ progress: Float) {
+    func announceRotationProgress(_ progress: Double) {
         switch progress {
         case 0.25:
             speak("Keep rotating. You're doing great.")

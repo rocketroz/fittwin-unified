@@ -7,6 +7,11 @@
 
 set -euo pipefail
 
+# Resolve repo root (this script lives under services/python/measurement/scripts)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
+cd "$REPO_ROOT"
+
 # Activate agents venv if present
 if [ -f .venv-agents/bin/activate ]; then
   # shellcheck source=/dev/null
@@ -20,4 +25,4 @@ if [ -z "${OPENAI_API_KEY:-}" ]; then
 fi
 
 echo "Starting agents bootstrap using OPENAI_API_KEY from environment..."
-python agents/crew/bootstrap.py
+python3 -m ai.crewai.crew.bootstrap

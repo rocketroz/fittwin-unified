@@ -20,7 +20,7 @@ This PR merges the newly migrated monorepo branch (`monorepo-migration`) into `m
   - `agents/.env.example` - Agent configuration template
 - **Updated CI/CD paths** to match new folder structure
 - **Moved Supabase migrations** to `data/supabase/migrations/`
-- **Organized agents** into `agents/crew/`, `agents/config/`, `agents/prompts/`, `agents/tools/`
+- **Organized agents** into `ai/crewai/crew/`, `ai/crewai/config/`, `ai/crewai/prompts/`, `ai/crewai/tools/`
 
 ### Testing
 
@@ -211,7 +211,7 @@ pytest tests/backend/test_measure_and_recs.py -v
 bash scripts/run_agents.sh
 # OR manually:
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-python3 agents/crew/crew_test.py
+    python3 ai/crewai/crew/crew_test.py
 ```
 
 ### Environment Setup
@@ -300,7 +300,7 @@ git push origin main
 
 ### Adding New Agent
 
-1. Create agent file in `agents/crew/`
+1. Create agent file in `ai/crewai/crew/`
 2. Add configuration in `agents/config/`
 3. Define prompts in `agents/prompts/`
 4. Add custom tools in `agents/tools/`
@@ -432,4 +432,3 @@ pytest tests/backend/ -v --log-cli-level=INFO
 
 **Last Updated:** October 25, 2025  
 **Version:** Monorepo v1.0
-

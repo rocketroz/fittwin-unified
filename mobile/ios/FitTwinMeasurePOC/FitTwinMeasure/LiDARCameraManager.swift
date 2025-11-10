@@ -103,7 +103,7 @@ class LiDARCameraManager: NSObject, ObservableObject {
     // MARK: - Photo Capture
     
     func capturePhoto() async throws -> (image: UIImage, depthData: AVDepthData?) {
-        return try await withCheckedThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<(image: UIImage, depthData: AVDepthData?), Error>) in
             let settings = AVCapturePhotoSettings()
             
             // Enable depth data capture if available
@@ -125,13 +125,13 @@ class LiDARCameraManager: NSObject, ObservableObject {
 
 // MARK: - Photo Capture Delegate
 
-private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
-    
-    private let completion: (Result<(UIImage, AVDepthData?), Error>) -> Void
-    
-    init(completion: @escaping (Result<(UIImage, AVDepthData?), Error>) -> Void) {
-        self.completion = completion
-    }
+    private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
+        
+        private let completion: (Result<(image: UIImage, depthData: AVDepthData?), Error>) -> Void
+        
+        init(completion: @escaping (Result<(image: UIImage, depthData: AVDepthData?), Error>) -> Void) {
+            self.completion = completion
+        }
     
     func photoOutput(
         _ output: AVCapturePhotoOutput,
@@ -150,7 +150,7 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
         }
         
         let depthData = photo.depthData
-        completion(.success((image, depthData)))
+        completion(.success((image: image, depthData: depthData)))
     }
 }
 

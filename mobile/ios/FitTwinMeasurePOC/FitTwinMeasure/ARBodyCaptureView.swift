@@ -489,7 +489,7 @@ struct ARBodyCaptureView: View {
         }
     }
     
-    private func trackingQualityMessage(_ reason: ARFrame.WorldTrackingState.Reason) -> String {
+    private func trackingQualityMessage(_ reason: ARCamera.TrackingState.Reason) -> String {
         switch reason {
         case .excessiveMotion:
             return "Move more slowly"

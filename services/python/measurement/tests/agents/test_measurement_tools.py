@@ -1,62 +1,43 @@
 """
-Tests for CrewAI measurement tools.
+Tests for CrewAI measurement tool wrappers.
 """
 
-import pytest
+from __future__ import annotations
+
 from unittest.mock import Mock, patch
-from agents.tools.measurement_tools import (
-    validate_measurements,
-    recommend_size
-)
+
+from ai.crewai.tools.measurement_tools import recommend_sizes, validate_measurements
 
 
-class TestMeasurementTools:
-    """Test measurement tool functions."""
+@patch("ai.crewai.tools.measurement_tools.requests.post")
+def test_validate_measurements_success(mock_post: Mock) -> None:
+    payload = {"waist_natural_cm": 81.2, "hip_low_cm": 98.6}
 
-    @patch('agents.tools.measurement_tools.requests.post')
-    def test_validate_measurements_tool(self, mock_post):
-        """Test measurement validation tool."""
-        # Mock API response
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "valid": True,
-            "measurements_cm": {
-                "waist_natural_cm": 81.28,
-                "hip_low_cm": 101.6
-            }
-        }
-        mock_post.return_value = mock_response
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"valid": True, "measurements_cm": payload}
+    mock_post.return_value = mock_response
 
-        # Call the tool
-        result = validate_measurements(
-            waist_natural=32,
-            hip_low=40,
-            unit="in"
-        )
+    result = validate_measurements(payload)
 
-        assert result["valid"] is True
-        assert "measurements_cm" in result
+    assert result["valid"] is True
+    mock_post.assert_called_once()
 
-    @patch('agents.tools.measurement_tools.requests.post')
-    def test_recommend_size_tool(self, mock_post):
-        """Test size recommendation tool."""
-        # Mock API response
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "recommended_size": "M",
-            "confidence": 0.85,
-            "alternatives": ["S", "L"]
-        }
-        mock_post.return_value = mock_response
 
-        # Call the tool
-        result = recommend_size(
-            waist_natural_cm=81.28,
-            hip_low_cm=101.6,
-            chest_cm=101.6
-        )
+@patch("ai.crewai.tools.measurement_tools.requests.post")
+def test_recommend_sizes_success(mock_post: Mock) -> None:
+    payload = {"measurements_cm": {"waist_natural_cm": 81.2}}
 
-        assert result["recommended_size"] == "M"
-        assert result["confidence"] == 0.85
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "recommended_size": "M",
+        "confidence": 0.85,
+    }
+    mock_post.return_value = mock_response
+
+    result = recommend_sizes(payload)
+
+    assert result["recommended_size"] == "M"
+    assert result["confidence"] == 0.85
+    mock_post.assert_called_once()
