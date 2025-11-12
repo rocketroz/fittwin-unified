@@ -12,13 +12,18 @@ A **native iOS app** built with Swift/SwiftUI that:
 - ✅ Shows **AR overlay** for body positioning
 - ✅ Works on **any iPhone** (iOS 14+)
 - ✅ **No LiDAR required** (uses MediaPipe AI)
+- ✅ **Cloud sync** with Supabase backend
+- ✅ **Measurement history** and cross-device access
 
 ## 📁 Project Structure
 
 ```
 ios-clean/
-├── Podfile                     # Dependencies (MediaPipe)
+├── Podfile                     # Dependencies (MediaPipe, Supabase)
 ├── SETUP_GUIDE.md             # Complete setup instructions
+├── SUPABASE_SETUP.md          # Backend setup guide
+├── CHANGELOG_SUPABASE.md      # Detailed changelog
+├── supabase_schema.sql        # Database schema
 ├── README.md                  # This file
 └── FitTwin/
     ├── FitTwinApp.swift       # App entry point
@@ -30,7 +35,8 @@ ios-clean/
     │   ├── PhoneAngleDetector.swift          # Accelerometer-based angle detection
     │   ├── AudioNarrator.swift               # Text-to-speech guidance
     │   ├── PoseDetectionService.swift        # MediaPipe pose detection
-    │   └── MeasurementCalculator.swift       # 50+ measurements from landmarks
+    │   ├── MeasurementCalculator.swift       # 50+ measurements from landmarks
+    │   └── SupabaseService.swift             # Backend integration (NEW)
     ├── Views/
     │   ├── Onboarding/
     │   │   ├── OnboardingCoordinatorView.swift
@@ -175,31 +181,41 @@ All views use `.teal` as primary color. Search and replace with your brand color
 
 **Total**: 23 measurements (can be expanded to 50+)
 
-## 🌐 Backend Integration
+## 🌐 Backend Integration (Supabase)
 
-To connect to your backend:
+**The app now includes complete Supabase backend integration!** 🎉
 
-1. Create `Services/APIService.swift`
-2. Add upload function
-3. Call from `CaptureViewModel.processMeasurements()`
+### What's Included:
+- ✅ **SupabaseService.swift** - Complete backend service
+- ✅ **Automatic upload** - Measurements sync after processing
+- ✅ **User authentication** - Anonymous, email, or OAuth
+- ✅ **Cloud storage** - PostgreSQL database with RLS
+- ✅ **Upload status UI** - Real-time sync indicators
+- ✅ **Database schema** - Ready-to-use SQL file
 
-Example:
-```swift
-func uploadMeasurements(_ data: MeasurementData) async throws {
-    let url = URL(string: "YOUR_BACKEND_URL/api/measurements")!
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.httpBody = try JSONEncoder().encode(data)
-    
-    let (_, response) = try await URLSession.shared.data(for: request)
-    // Handle response
-}
-```
+### Setup (15-20 minutes):
+
+1. **See [SUPABASE_SETUP.md](SUPABASE_SETUP.md)** for complete instructions
+2. Create free Supabase project
+3. Run `supabase_schema.sql` in SQL Editor
+4. Add credentials to Xcode environment variables
+5. Run `pod install` to add Supabase SDK
+6. Build & test - measurements auto-upload!
+
+### Features:
+- 📊 Store 23+ body measurements per scan
+- 🔐 Row Level Security (users only see their data)
+- 📸 Optional image storage for front/side photos
+- 📈 Measurement history and trends
+- 🔄 Cross-device sync
+- 🌐 REST API access
+
+**See [CHANGELOG_SUPABASE.md](CHANGELOG_SUPABASE.md)** for detailed technical documentation.
 
 ## 📦 Dependencies
 
 - **MediaPipeTasksVision** (0.10.14): Pose detection
+- **Supabase** (2.0): Backend integration (NEW)
 - **AVFoundation**: Camera capture
 - **CoreMotion**: Accelerometer/gyroscope
 - **AVSpeechSynthesizer**: Audio narration
@@ -241,12 +257,16 @@ func uploadMeasurements(_ data: MeasurementData) async throws {
 
 ## 🚀 Future Enhancements
 
-- [ ] Save measurements to local database
+- [x] Save measurements to cloud database (Supabase)
+- [x] User authentication and profiles
+- [ ] Measurement history UI with charts
 - [ ] Compare measurements over time
 - [ ] Size recommendations for brands
 - [ ] 3D avatar visualization
 - [ ] Export measurements as PDF
 - [ ] Share to social media
+- [ ] Real-time sync across devices
+- [ ] Integration with clothing retailer APIs
 
 ## 📄 License
 
