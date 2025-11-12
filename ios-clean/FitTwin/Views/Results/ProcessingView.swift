@@ -2,8 +2,12 @@ import SwiftUI
 
 struct ProcessingView: View {
     let progress: Double
+    let measurementData: MeasurementData?
     
+    @EnvironmentObject var supabaseService: SupabaseService
     @State private var hasSpoken = false
+    @State private var uploadStatus: UploadStatus = .idle
+    @State private var uploadError: String?
     
     var body: some View {
         VStack(spacing: 40) {
@@ -59,6 +63,11 @@ struct ProcessingView: View {
                     text: "Finalizing results",
                     isComplete: progress >= 1.0
                 )
+                StatusRow(
+                    icon: uploadStatus.icon,
+                    text: uploadStatus.text,
+                    isComplete: uploadStatus == .success
+                )
             }
             .padding(.horizontal, 40)
             
@@ -70,6 +79,78 @@ struct ProcessingView: View {
                 AudioNarrator.shared.speak("Perfect! Now analyzing your measurements. This will take about 30 seconds.")
                 hasSpoken = true
             }
+        }
+        .onChange(of: progress) { newProgress in
+            // Start upload when processing is complete
+            if newProgress >= 1.0 && uploadStatus == .idle {
+                uploadMeasurements()
+            }
+        }
+    }
+    
+    private func uploadMeasurements() {
+        guard let data = measurementData else {
+            uploadStatus = .failed
+            uploadError = "No measurement data available"
+            return
+        }
+        
+        uploadStatus = .uploading
+        
+        Task {
+            do {
+                // Ensure user is authenticated
+                if !supabaseService.isAuthenticated {
+                    try await supabaseService.signInAnonymously()
+                }
+                
+                // Upload measurement
+                let measurementId = try await supabaseService.uploadMeasurement(data)
+                
+                await MainActor.run {
+                    uploadStatus = .success
+                    print("✅ Measurement uploaded successfully: \(measurementId)")
+                }
+            } catch {
+                await MainActor.run {
+                    uploadStatus = .failed
+                    uploadError = error.localizedDescription
+                    print("❌ Upload failed: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+}
+
+enum UploadStatus: Equatable {
+    case idle
+    case uploading
+    case success
+    case failed
+    
+    var icon: String {
+        switch self {
+        case .idle:
+            return "cloud.fill"
+        case .uploading:
+            return "arrow.up.circle"
+        case .success:
+            return "checkmark.circle.fill"
+        case .failed:
+            return "xmark.circle.fill"
+        }
+    }
+    
+    var text: String {
+        switch self {
+        case .idle:
+            return "Preparing to sync"
+        case .uploading:
+            return "Syncing to cloud"
+        case .success:
+            return "Synced successfully"
+        case .failed:
+            return "Sync failed (saved locally)"
         }
     }
 }

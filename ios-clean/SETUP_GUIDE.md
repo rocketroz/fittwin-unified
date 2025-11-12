@@ -325,29 +325,50 @@ The app should launch on your iPhone! 🎉
 
 ## Next Steps
 
-### Backend Integration
-To connect to your backend API:
+### Backend Integration (Supabase)
 
-1. Open `Services/APIService.swift` (you'll need to create this)
-2. Add your backend URL
-3. Implement upload function in `CaptureViewModel.processMeasurements()`
+**The app now includes Supabase backend integration!** 🎉
 
-Example:
-```swift
-// In MeasurementCalculator or new APIService.swift
-func uploadMeasurements(_ data: MeasurementData) async throws {
-    let url = URL(string: "https://your-backend.com/api/measurements")!
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.httpBody = try JSONEncoder().encode(data)
-    
-    let (_, response) = try await URLSession.shared.data(for: request)
-    guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-        throw URLError(.badServerResponse)
-    }
-}
+Supabase provides:
+- Cloud database for storing measurements
+- User authentication (anonymous, email, OAuth)
+- Cross-device sync
+- Measurement history
+- File storage for photos
+
+**To set up Supabase backend:**
+
+1. See **`SUPABASE_SETUP.md`** for complete setup instructions (15-20 minutes)
+2. The setup includes:
+   - Creating a free Supabase project
+   - Running database schema SQL
+   - Configuring iOS app with API credentials
+   - Testing end-to-end upload
+
+**What's Already Implemented:**
+- ✅ `SupabaseService.swift` - Complete backend service
+- ✅ `ProcessingView.swift` - Automatic upload after measurement
+- ✅ `supabase_schema.sql` - Database schema with RLS policies
+- ✅ Upload status UI ("Syncing to cloud" indicator)
+- ✅ Anonymous authentication for testing
+- ✅ Error handling and retry logic
+
+**Quick Start:**
+```bash
+# 1. Install Supabase pod (already in Podfile)
+pod install
+
+# 2. Get credentials from Supabase dashboard
+# Settings → API → Copy URL and anon key
+
+# 3. Add to Xcode scheme environment variables
+# SUPABASE_URL=https://xxxxx.supabase.co
+# SUPABASE_ANON_KEY=eyJhbGc...
+
+# 4. Run the app - measurements auto-upload!
 ```
+
+See `SUPABASE_SETUP.md` for detailed step-by-step instructions.
 
 ### Accuracy Testing
 To test measurement accuracy:

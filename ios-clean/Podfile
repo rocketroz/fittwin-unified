@@ -8,7 +8,10 @@ target 'FitTwin' do
   # MediaPipe for pose detection
   pod 'MediaPipeTasksVision', '~> 0.10.14'
   
-  # Optional: Alamofire for networking (if needed for backend)
+  # Supabase for backend
+  pod 'Supabase', '~> 2.0'
+  
+  # Optional: Alamofire for networking (if needed for other APIs)
   # pod 'Alamofire', '~> 5.8'
   
 end
