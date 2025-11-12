@@ -18,12 +18,20 @@ struct ContentView: View {
                 }
 
                 NavigationLink {
-                    CaptureFlowView()
+                    EnhancedCaptureFlowView()
                 } label: {
-                    Text("Start Prototype Flow")
+                    Text("Start Measurement Capture")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
+                
+                NavigationLink {
+                    CaptureFlowView()
+                } label: {
+                    Text("Old Prototype Flow")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
 
                 Spacer()
             }
