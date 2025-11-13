@@ -55,9 +55,10 @@ struct CaptureFlowView: View {
                     // Automatically show side camera after front capture
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         showingSideCamera = true
-                    }
-                }
-            }
+        }
+    }
+    .preferredColorScheme(.light)
+}
             .sheet(isPresented: $showingSideCamera) {
                 CameraCaptureView(captureMode: .side) { image, depthData in
                     viewModel.handleSideCapture(image: image, depthData: depthData)

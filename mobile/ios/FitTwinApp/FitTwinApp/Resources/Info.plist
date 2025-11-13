@@ -18,8 +18,19 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>FITWIN_API_KEY</key>
+	<string>7c4b71191d6026973900ac353d6d68ac5977836cc85710a04ccf3ba147db301e</string>
+	<key>FITWIN_API_URL</key>
+	<string>http://localhost:8000</string>
+	<key>FITWIN_ENV</key>
+	<string>development</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>FitTwin needs access to the camera to capture measurement photos.</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -37,11 +48,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

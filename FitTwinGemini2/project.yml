@@ -1,0 +1,15 @@
+name: FitTwin
+options:
+  bundleIdPrefix: com.fittwin
+targets:
+  FitTwin:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources: [Sources]
+    settings:
+      base:
+        SWIFT_VERSION: 5.0
+    dependencies:
+      - framework: SwiftUI
+      - framework: RealityKit
